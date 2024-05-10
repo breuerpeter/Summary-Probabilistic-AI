@@ -1,0 +1,50 @@
+\documentclass[tikz, tcolorbox]{summary}
+%=================================================================
+\title{Summary}
+\headtitle{PROBABILISTIC AI -- SUMMARY}
+\author{PETER BREUER}
+
+\usepackage[cmbright]{sfmath}
+
+\usepackage{algpseudocode} % pseudocode
+
+\begin{document}
+
+	% restart page counter
+	\setcounter{page}{1}
+	% reactivate header and footer
+	\pagestyle{plain}
+
+	\begin{multicols*}{3}
+		\LARGE \textbf{\colorbox{black}{\textcolor{white}{PROBABILISTIC AI}}} \\
+		\normalsize 
+        %\textbf{\colorbox{color2}{\textcolor{white}{\url{URL}}}} \\
+        \textbf{\colorbox{color2}{\textcolor{white}{\href{mailto:pbreuer@ethz.ch}{PBREUER}}}}
+        \blue{Rev: \today}
+        \normalsize
+        \raggedcolumns
+        
+		\input{sections/01_Probability}
+        \input{sections/02_Gaussians}
+        \input{sections/03_BLR}
+        \input{sections/04_GP}
+        \input{sections/Variational_Inference}
+        \input{sections/MCMC}
+        \input{sections/BDL}
+        \input{sections/Calibration}
+        \input{sections/BO}
+        \input{sections/MDPs}
+        \input{sections/POMDPs}
+        \input{sections/Tabular_Learning}
+        \input{sections/Model-Free_RL}
+
+% TODO: REPLACE X1:n,Y1:n with D
+  
+        %\input{sections/Misc}
+        
+        %\vfill\null 
+        %\columnbreak
+	\end{multicols*}
+	\clearpage
+
+\end{document}

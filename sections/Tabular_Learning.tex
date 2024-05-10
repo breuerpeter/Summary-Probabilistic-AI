@@ -1,0 +1,109 @@
+\section{TABULAR LEARNING}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $$ & \\
+        \addlinespace[2pt]
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+   
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{REINFORCEMENT LEARNING}}
+    \begin{itemize}
+        \item Planning in unknown MDPs
+        \item Two fundamental approaches
+        \begin{itemize}
+            \item Model-based RL
+            \begin{itemize}
+                \item Estimate an MDP (transition probabilites $P(x'|x,a)$ and reward function $r(x,a)$)
+                \item Optimize policy based on the estimated MDP (e.g. using value-/policy iteration
+                \item Example: $R_{\max}$
+            \end{itemize}
+            \item Model-free RL
+            \begin{itemize}
+                \item Estimate the value functions directly
+                \item Examples: temporal difference, Q-Learning
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{$R_{\max}$}}
+    \begin{itemize}
+        \item Idea: if something hasn't been tried, assume it's very good!
+        \item For any untried state $x$ and action $a$, set
+        \begin{align*}
+            &r(x,a)=R_{\max}\\
+            &P(x^*|x,a)=1
+        \end{align*}
+        where $x^*$ is the (imaginary) fairy-tale state
+        \begin{minipage}[l]{0.2\linewidth}
+            \tikzstyle{block} = [draw, circle, minimum height=1em]
+            \begin{tikzpicture}[auto, node distance=2cm,>=latex']
+                \node [block, align=center, font=\footnotesize] (imag) {$x^*$};
+                \path (imag) edge[loop above] node {$a,1,R_{\max}$} (imag);
+            \end{tikzpicture}
+        \end{minipage}%
+        \begin{minipage}[c]{0.3\linewidth}
+            \begin{align*}
+                &P(x^*|x^*,a)=1,\ \forall a\\
+                &r(x^*,a)=R_{\max},\ \forall a
+            \end{align*}
+        \end{minipage}
+
+        \item Encourages exploration for untried actions
+        \item Exploitation happens after we have explored all states
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{ISSUES WITH MODEL-BASED APPROACHES}}
+    \begin{itemize}
+        \itemCon Memory required: need to remember
+        \begin{itemize}
+            \item $P(x'|x,a)=\mathcal{O}(mn^2)$
+            \item $r(x,a)=\mathcal{O}(mn)$
+        \end{itemize}
+        with cardinalities $|X|=n,\ |A|=m$\\
+        \faWarning\ When the state, action space $(m,n)$ is large, prefer model-free RL (only storing value functions decreases complexity to $\mathcal{O}(mn)$ for $Q^\pi$ or $\mathcal{O}(n)$ for $V^\pi$)
+        \itemCon Repeatedly solving MDPs to approach $\pi^*$
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{REWARD MODIFICATION}}
+    \begin{itemize}
+        \item Idea: modify reward function in such a way that optimal policy is unchanged but sample efficiency/convergence rate is improved
+        \item Scenario
+        \begin{itemize}
+            \item Consider finite-state MDP $M=(X,A,P,\gamma,R)$ and modified MDP $M'=(X,A,P,\gamma,R')$ with modified reward function
+            \item Let $\pi_M^*$ be the optimal policy for $M$
+            \item Assume $\gamma\in[0,1)$
+            \item Assume rewards $R,R'$ bounded
+        \end{itemize}
+        \item Scaling up reward by a constant $\alpha$
+        \begin{align*}
+            &R'=\alpha R,\ \alpha>0\\
+            &\Rightarrow\pi_{M'}^*=\pi_M^*
+        \end{align*}
+        \begin{itemize}
+            \item Prove by showing that $\forall\pi,\ V_{M'}^{\pi^*}\geq V_{M'}^{\pi}$ based on $V_M^{\pi^*}\geq V_M^\pi,\ \forall\pi$
+        \end{itemize}
+        \item Positively shifting the reward with a constant $c$
+        \begin{align*}
+            &R'=R+c,\ c>0\\
+            &\not\Rightarrow\pi_{M'}^*=\pi_M^*
+        \end{align*}
+        \item Transforming reward using a potential-based shaping function $F$
+        \begin{align*}
+            &R'=R+F,\quad F:=\gamma\phi(s')-\phi(s),\quad\phi:X\to\mathbb{R}\\
+            &\Rightarrow\pi_{M'}^*=\pi_M^*
+        \end{align*}
+    \end{itemize}
+\end{whitebox}

@@ -1,0 +1,144 @@
+\section{GAUSSIAN PROCESSES}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $f\sim GP(\bm{\mu}(x),k(x,x'))$ & Gaussian process (GP) model $f$\\
+        \addlinespace[2pt]
+        $\bm{\mu}$ & Mean vector of GP\\
+        \addlinespace[2pt]
+        $k$ & Kernel function of GP\\
+        \addlinespace[2pt]
+        $\bm{\Sigma}$ & Covariance matrix of GP\\
+        \addlinespace[2pt]
+        $x^*$ & New test point
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{GAUSSIAN PROCESS}}
+    \begin{itemize}
+        \item Generalization of multivariate Gaussian distribution to infinitely many RVs, any finite number of which are jointly Gaussian
+        \item Fully defined by $\bm{\mu}(x)$ and $k(x,x')$
+        
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{NONLINEAR REGRESSION}}
+    \begin{itemize}
+        \item Noisy observation model
+        \begin{align*}
+            y(x)=f(x)+\bm{\epsilon},\quad\bm{\epsilon}\overset{i.i.d.}{\sim}\mathcal{N}(0,\sigma_y^2\mathbb{I})
+        \end{align*}
+        \item GP prior over $f$
+        \begin{align*}
+            f\sim GP(\bm{\mu}(x), k(x,x'))
+        \end{align*}
+        \begin{itemize}
+            \item Induces GP prior over $y$
+            \begin{align*}
+                y\sim GP(\bm{\mu}(x), k(x,x')+\sigma_y^2)
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{MARGINALIZATION}}
+    \begin{itemize}
+        \item In practice, we are only interested in subset of points $A\subset X=\{x_1,\dots,x_m\}$
+        \item Marginalizing the infinite-dimensional distribution of $f$ admits a closed form ($m$-dimensional Gaussian distribution)
+        \begin{align*}
+            &(f(x_1),\dots,f(x_m))\sim\mathcal{N}(\bm{\mu}_A,\bm{K}_{AA})\\
+            &\bm{K}_{AA}=
+            \begin{bmatrix}
+                k(x_1,x_1) & k(x_1,x_2) & \cdots & k(x_1,x_m)\\
+                \vdots & & \vdots\\
+                k(x_m,x_1) & k(x_m,x_2) & \cdots & k(x_m,x_m)
+            \end{bmatrix}\\
+            &\bm{\mu}_A=[\bm{\mu}(x_1),\dots,\bm{\mu}(x_m)]^\top
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{POSTERIOR MARGINAL DISTRIBUTION}}
+    \begin{itemize}
+        \item Noise-free case
+        \begin{align*}
+            p(f(x^*)|x^*,x_1,\dots,x_m,f(x_1),\dots,f(x_m))
+        \end{align*}
+        with $m$ noise-free observations associated with $A$
+        \begin{align*}
+            \bm{f}_A=[f(x_1),\dots,f(x_m)]^\top
+        \end{align*}
+        \begin{enumerate}
+            \item Marginalize $GP(f;\bm{\mu},k)$ over $(x_1,\dots,x_m,x^*)$
+            \begin{align*}
+                \begin{bmatrix}
+                    \bm{f}_A\\
+                    f(x^*)
+                \end{bmatrix}\sim\mathcal{N}\left(
+                \begin{bmatrix}
+                    \bm{\mu}_A\\
+                    \bm{\mu}(x')
+                \end{bmatrix},
+                \begin{bmatrix}
+                    \bm{K}_{AA} & k_{x^*,A}^\top\\
+                    k_{x^*,A} & k(x^*,x^*)
+                \end{bmatrix}\right)
+            \end{align*}
+            \item Condition the joint distribution above on $f_A$
+            \begin{align*}
+                (f(x^*)|f_A)\sim\mathcal{N}(&\bm{\mu}(x^*)+k_{x^*,A}\bm{K}_{AA}^{-1}(f_A-\bm{\mu}_A),\\
+                &k(x^*,x^*)-k_{x^*,A}\bm{K}_{AA}^{-1}k_{x^*,A}^\top)
+            \end{align*}
+        \end{enumerate}
+        \item Noisy case
+        \begin{align*}
+            p(f(x^*)|x^*,x_1,\dots,x_m,y_1,\dots,y_m)
+        \end{align*}
+        with $m$ noisy observations associated with $A$
+        \begin{align*}
+            \bm{y}_A=[y_1,\dots,y_m]^\top
+        \end{align*}
+        \begin{enumerate}
+            \item Marginalize $GP(f;\bm{\mu},k)$ over $(x_1,\dots,x_m,x^*)$
+            \begin{align*}
+                \begin{bmatrix}
+                    \bm{y}_A\\
+                    f(x^*)
+                \end{bmatrix}\sim\mathcal{N}\left(
+                \begin{bmatrix}
+                    \bm{\mu}_A\\
+                    \bm{\mu}(x')
+                \end{bmatrix},
+                \begin{bmatrix}
+                    \bm{K}_{AA}+\sigma_y^2\mathbb{I} & k_{x^*,A}^\top\\
+                    k_{x^*,A} & k(x^*,x^*)
+                \end{bmatrix}\right)
+            \end{align*}
+            \begin{itemize}
+                \item Noise is observed independently\\
+                $\implies\Sigma_{f(x^*),y_A}=\Sigma_{f(x^*),f_A}=k_{x^*,A}$
+            \end{itemize}
+            \item Condition the joint distribution above on $\bm{y}_A$
+            \begin{align*}
+                (f(x^*)|\bm{y}_A)\sim\mathcal{N}(&\bm{\mu}(x^*)+k_{x^*,A}(\bm{K}_{AA}+\sigma_y^2\mathbb{I})^{-1}(\bm{y}_A-\bm{\mu}_A),\\
+                &k(x^*,x^*)-k_{x^*,A}(\bm{K}_{AA}+\sigma_y^2\mathbb{I})^{-1}k_{x^*,A}^\top)
+            \end{align*}
+        \end{enumerate}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{SAMPLING FROM A GP}}
+    \begin{itemize}
+        \item Generate samples $\bm{x}\sim\mathcal{N}(\bm{m},\bm{K})$
+        \begin{enumerate}
+            \item Compute Cholesky decomposition $\bm{K}=\bm{LL}^\top$, where $\bm{L}$ is a lower triangular matrix
+            \item Generate $\bm{\epsilon}\sim\mathcal{N}(\bm{0},\mathbb{I})$
+            \item Compute $\bm{x}=\bm{m}+\bm{L}\bm{\epsilon}$
+            \begin{align*}
+                &\mathbb{E}[\bm{x}]=\bm{m}+\bm{L}\mathbb{E}[\bm{\epsilon}]=\bm{m}\\
+                &\mathrm{Var}[\bm{x}]=\bm{L}\mathrm{Var}[\bm{\epsilon}]\bm{L}^\top=\bm{LL}^\top=\bm{K}
+            \end{align*}
+            to have $\bm{x}\sim\mathcal{N}(\bm{m},\bm{K})$
+        \end{enumerate}
+    \end{itemize}
+\end{whitebox}

@@ -1,0 +1,94 @@
+\section{MISC}
+
+\begin{whitebox}{\textbf{NOTATION}}
+    \begin{itemize}
+        \item Model weights $\theta$
+        \item Learning rate $\eta$
+        \item Feature $x$
+        \item Label $y$
+        \item $i$-th input $\{x_i,y_i\}$
+        \item Size of the training set $N$
+        \item Size of the batch $N$
+        \item Deep neural network $f_\theta$ (weight parameters $\theta$)
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STOCHASTIC GRADIENT DESCENT (SGD)}}
+    \begin{itemize}
+        \item Used for maximum likelihood training
+        \item Does not represent uncertainty in the predictions or parameters
+        \item Loss function is the negative log likelihood $\sum_{i}\log p(y_{i}|f_{\theta}(x_{i}))$
+        \item Regularizer: $\log p(\theta)$
+    \end{itemize}
+    \begin{align*}
+        \Delta\theta_{t}=-\eta_{t}\left(\frac{1}{B}\sum_{i=1}^{B}\nabla_{\theta}\log p(y_{i}|f_{\theta}(x_{i}))-\frac{\nabla_{\theta}\log p(\theta)}{N}\right)
+    \end{align*}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STOCHASTIC WEIGHT AVERAGING (SWA)}}
+    \begin{itemize}
+        \item Runs SGD with a constant learning rate schedule starting from a pre-trained solution and average the model weights it traverses
+        \item A high constant learning rate ensures exploration with SGD i.e. avoids convergence to a single point in the weight space
+        \item SWA solution after training for $T$ epochs:
+        \begin{align*}
+            \theta_{\mathrm{SWA}}={\frac{1}{T}}\sum_{i=1}^{T}\theta_{i}
+        \end{align*}
+        \item SWA has better generalization performance than SWA
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{SWAG-DIAGONAL}}
+    \begin{itemize}
+        \item Simple diagonal format for the covariance matrix (standard in Bayesian deep learning)
+        \begin{align*}
+            \Sigma_{\mathrm{diag}}\,=\,\mathrm{diag}(\overline{{{\theta^{2}}}}-\theta_{\mathrm{SWA}}^{2})\text{ with }\overline{{{\theta^{2}}}}\,=\,\frac{1}{T}\,\sum_{i=1}^{T}\,\theta_{i}^{2}
+        \end{align*}
+        (element-wise squares)
+        \item Resulting SWAG-Diagonal posterior distribution approximation: $p(\theta|D)\approx{\mathcal{N}}(\theta_{\mathrm{SWA}},\Sigma_{\mathrm{diag}})$
+        \item Predictive distribution from marginalizing the posterior distribution over $\theta$:
+        \begin{align*}
+            p(y_{\star}|D,x_{\star})=\int p(y_{\star}|\theta,x_{\star})p(\theta|D)d\theta
+        \end{align*}
+        \item Approximate with Monte-Carlo sampling:
+        \begin{align*}
+            p(y_{\star}|D,x_{\star})\approx\frac{1}{T}\sum_{t=1}^{T}p(y_{\star}|\theta_{t},x_{\star})\text{ where }\theta_{t}\sim p(\theta|D)
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{SWAG}}
+    \begin{itemize}
+        \item SWAG-Diagonal approach can be too restrictive
+        \item More flexible low-rank plus diagonal posterior approximation
+        \item Sample covariance matrix of the SGD iterates (rank $T$)
+        \begin{align*}
+            \Sigma={\frac{1}{T-1}}\sum_{i=1}^{T}(\theta_{i}-\theta_{\mathrm{SWA}})(\theta_{i}-\theta_{\mathrm{SWA}})^{\top}
+        \end{align*}
+        \item As $\theta_{\mathrm{SWA}}$ is unavailable during training, approximate:
+        \begin{align*}
+            \Sigma\approx{\frac{1}{T-1}}\sum_{i=1}^{T}(\theta_{i}-\bar{\theta}_{i})(\theta_{i}-\bar{\theta}_{i})^{\top}={\frac{1}{T-1}}D D^{\textsf{T}}
+        \end{align*}
+        where the deviation matrix $D$ has columns $D_i=(\theta_{i}-\bar{\theta}_{i})$ and $\bar{\theta}_{i}=\frac{1}{i}\sum_{j=0}^i\theta_j$
+        \item Limit rank of $\Sigma$ by using only last $K$ (hyperparameter) of $D_i$ vectors (correspond to last $K$ epochs of training):
+        \begin{align*}
+            \Sigma_{\mathrm{low-rank}}={\frac{1}{K-1}}\cdot\hat{D}\hat{D}^{\top}
+        \end{align*}
+        \item Resulting SWAG posterior distribution approximation: ${\mathcal{N}}(\theta_{\mathrm{SWA}},\frac{1}{2}(\Sigma_{\mathrm{diag}}+\Sigma_{\mathrm{low-rank}}))$
+        \item Sample from SWAG using
+        \begin{align*}
+            \tilde{\theta}=\theta_{\mathrm{SWA}}+\frac{1}{\sqrt{2}}\cdot\Sigma_{\mathrm{diag}}^{\frac{1}{2}}z_{1}+\frac{1}{\sqrt{2(K-1)}}\hat{D}z_{2}
+        \end{align*}
+        with standard Gaussian random variables $z_1\sim\mathcal{N}(0,\mathbb{I}_d)$, $z_2\sim\mathcal{N}(0,\mathbb{I}_K)$ where $d$ is the number of network parameters
+    \end{itemize}
+\end{whitebox}
+
+
+
+
+
+\begin{whitebox}{\textbf{JOINT DISTRIBUTIONS}}
+    \begin{itemize}
+        \item Vector of RVs\\
+        $\bm{X}=[X_1(\omega),X_2(\omega),\hdots,X_n(\omega)],\quad \omega\in\Omega$
+    \end{itemize}
+\end{whitebox}

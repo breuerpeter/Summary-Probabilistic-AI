@@ -1,0 +1,343 @@
+\section{MARKOV DECISION PROCESSES}
+
+Learn to make good sequence of decisions under uncertainty
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $X$ & Finite set of states $\{x_i\}$\\
+        \addlinespace[2pt]
+        $A$ & Finite set of actions $\{a_i\}$\\
+        $P_{xx'}^a\in[0,1]$ & State transition probabability\\
+        $R(x,a)$ & Reward function\\
+        $\gamma\in[0,1)$ & Discount factor\\
+        $\pi(a|x)$ & Policy\\
+        $G_t$ & Return\\
+        $M$ & Markov decision process (MDP)\\
+        $V^\pi(x)$ & State-value function\\
+        $Q^\pi(x,a)$ & State-action value function/Q-value function\\
+   
+    \end{tabularx}
+\end{yellowbox}
+
+\tikzstyle{block} = [draw, rectangle, minimum height=3em, minimum width=6em]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\scalebox{0.95}{
+\begin{tikzpicture}[auto, node distance=2cm,>=latex']
+    % nodes
+    \node [block, align=center, font=\footnotesize] (agent) {Agent};
+    \node [block, below of=agent, align=center, font=\footnotesize, node distance=2.0cm] (env) {Environment};
+    % arrows
+    \draw [->] (env) -| ([xshift=0.5cm,yshift=1.0cm]env.east) node [align=center, fill=white] {reward,\\state} |- (agent);
+    \draw [->] (agent) -| ([xshift=-0.5cm,yshift=-1.0cm]agent.west) node [align=center, fill=white] {action} |- (env);
+\end{tikzpicture}
+}
+
+\begin{whitebox}{\textbf{MARKOV DECISION PROCESSES (MDPS)}}
+    \begin{itemize}
+        \item MDPs formall describe an environment for sequential decision making
+        \item Environment is fully observable (current state $X_t$ is known and completely characterizes the process)
+        \item Markov property: a state $X_t$ is \textit{Markov} iff
+        \begin{align*}
+            P(X_{t+1}\mid X_t)=P(X_{t+1}\mid X_1,X_2,\dots,X_t)
+        \end{align*}
+        \begin{itemize}
+            \item Note: E.g. if $X_{t+1}$ also depends on $X_{t-1}$, extend state to $(X_{t+1},X_t)$ i.e. add memory
+        \end{itemize}
+        \item MDP: tuple $(X,A,P,R,\gamma)$
+        \begin{align*}
+            P_{xx'}^a:=P(X_{t+1}=x'|X_t=x,A_t=a)
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{POLICY}}
+    \begin{itemize}
+        \item Policy: conditional distribution over actions given the state
+        \begin{align*}
+            \pi(a\mid x)=P(A_t=a|X_t=x)
+        \end{align*}
+        \item Control plan that fully describes behavior of agent
+        \item Assumption: stationary (no dependence on time)
+        \begin{itemize}
+            \item If the dynamics are stationary, so is the optimal policy
+        \end{itemize}
+        \item Stochastic policies more useful over deterministic policies there is uncertainty about the environment
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{RETURN}}
+    \begin{itemize}
+        \item Total discounted reward that we obtain from time $t$ onwards (given MDP $M$ and policy $\pi$
+        \begin{align*}
+            G_t&=R(X_t,\pi(X_t))+\gamma R(X_{t+1},\pi(X_{t+1}))+\dots\\
+            &=\sum_{m=0}^\infty\gamma^mR(X_{t+m},\pi(X_{t+m})
+        \end{align*}
+        \item $G_t$ is random variable as state sequence is random
+        \item Discount factor $\gamma$ trades off future rewards against the present
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STATE-ACTION VALUE FUNCTION}}
+    \begin{itemize}
+        \item Expected return, starting from state $x$, taking action $a$ and then following policy $\pi$
+        \begin{align*}
+            Q^\pi(x,a)&=\mathbb{E}_\pi[G_t\mid X_t=x,A_t=a]\\
+            &=R(x,a)+\gamma\sum_{x'}P(x'\mid x,a)\sum_{a'}\pi(a'|x')Q^\pi(x',a')
+        \end{align*}
+        For a deterministic policy $a=\pi(x)$ this simplifies to
+        \begin{align*}
+            Q^\pi(x,a)&=R(x,a)+\gamma\sum_{x'}P(x'|x,\pi(x))V^\pi(x')\\
+            &=R(x,a)+\gamma\mathbb{E}_{x'\sim P(x'|x,\pi(x))}[V^\pi(x')]\\
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STATE-VALUE FUNCTION}}
+    \begin{itemize}
+        \item Expected return, starting from state $x$ and following policy $\pi$
+        \begin{align*}
+            V^\pi(x)&=\mathbb{E}_{a\sim\pi(a|x)}[G_t\mid X_t=x]=\sum_a\pi(a|x)Q^\pi(x,a)\\
+            &=\sum_{a\in A}\pi(a|x)\left(R(x,a)+\gamma\sum_{x'}P(x'|x,a)V^\pi(x')\right)
+        \end{align*}
+        For a deterministic policy $a=\pi(x)$ this simplifies to
+        \begin{align*}
+            V^\pi(x)&=R(x,\pi(x))+\gamma\sum_{x'}P(x'|x,\pi(x))V^\pi(x')\\
+            &=R(x,\pi(x))+\gamma\mathbb{E}_{x'\sim P(x'|x,\pi(x))}[V^\pi(x')]
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{OPTIMAL POLICY}}
+    \begin{itemize}
+        \item The policy that maximizes the value of all states
+        \begin{align*}
+            V^{\pi^*(x)}=\max_\pi V^\pi(x),\ \forall x\in\mathcal{X}\\
+            \pi^*(x)\in\arg\max_a\left(R(x,a)+\gamma\sum_{x'}P(x'|x,a)V^*(x')\right)
+        \end{align*}
+        where $V^*(x)\equiv V^{\pi^*}(x)$
+        \item Exists for a finite MDP with bounded rewards in an infinite horizon
+        \item Properties
+        \begin{itemize}
+            \item Deterministic
+            \item Stationary
+            \item Not necessarily unique
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{BELLMAN OPTIMALITY EQUATIONS}}
+    \begin{itemize}
+        \item A policy is optimal iff it is greedy w.r.t. its induced value functions
+        \item Value function
+        \begin{align*}
+            V^*(x)&=\max_{a\in A}\left(R(x,a)+\gamma\mathbb{E}_{x'\sim P(x'|x,a)}[V^*(x')]\right)\\
+            &=\max_{a\in A}\ (\underbrace{R(x,a)+\gamma\sum_{x'}P(x'|x,a)V^*(x')}_{Q^*(x,a)})
+        \end{align*}
+        \item State-action value function
+        \begin{align*}
+            Q^*(x,a)&=R(x,a)+\gamma\max_{a'\in A}\mathbb{E}_{x'\sim P(x'|x,a)}[Q^*(x',a')]\\
+            &=R(x,a)+\gamma\sum_{x'}P(x'|x,a)\underbrace{\max_{a'\in A}Q^*(x',a')}_{V^*(x')}
+        \end{align*}
+        \begin{itemize}
+            \item Approach $Q^*$ given a single sample $(x,a,x',r)$
+            \begin{align*}
+                Q^*(x,a)&\approx r+\gamma V^*(x')\\
+                &=r+\gamma\max_{a'}Q^*(x',a')
+            \end{align*}
+        \end{itemize}
+        \item Bell optimality equations are nonlinear as they contain the $\max$ operator
+        \item Generally no closed form solution generally
+        \item Typically solved using iterative methods like policy- or value iteration
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{POLICY ITERATION}}
+    \begin{itemize}
+        \item Key idea: improve policy by continuously being greedy
+        \begin{enumerate}
+            \item Start with random policy $\pi(x)$
+            \item Repeat until convergence:
+            \begin{enumerate}
+                \item Policy evaluation
+                \begin{itemize}
+                    \item Given policy $\pi(x)$, compute $V^\pi(x)$
+                \end{itemize}
+                \item Policy improvement
+                \begin{itemize}
+                    \item Use $V^\pi(x)$ to obtain a better policy $\pi'(x)$
+                    \begin{align*}
+                        \pi'&=\arg\max_{a\in A}Q^\pi(x,a)\\
+                        &=\arg\max_{a\in A}R(x,a)+\gamma\sum_{x'}P(x'|x,a)V^\pi(x')
+                    \end{align*}
+                \end{itemize}
+            \end{enumerate}
+        \end{enumerate}
+        \item Policy evaluation
+        \begin{itemize}
+            \item Compute the value function given a policy $\pi$
+            \begin{align*}
+                V^\pi(x)=R(x,\pi(x))+\gamma\sum_{x'\in\mathcal{X}}P(x'|x,\pi(x))V^\pi(x')
+            \end{align*}
+            Or in matrix notation (as a linear system)
+            \begin{align*}
+                &\bm{V}^\pi=\bm{R}^\pi+\gamma\bm{P}^\pi\bm{V}^\pi\\
+                &\implies(\mathbb{I}-\gamma\bm{P}^\pi)\bm{V}^\pi=\bm{R}^\pi\\
+                &\implies\bm{V}^\pi=(\mathbb{I}-\gamma\bm{P}^\pi)^{-1}\bm{R}^\pi
+            \end{align*}
+            where 
+            \begin{align*}
+                \bm{V}^\pi=
+                \begin{bmatrix}
+                    V^\pi(1)\\
+                    V^\pi(2)\\
+                    \vdots\\
+                    V^\pi(n)
+                \end{bmatrix},\quad\bm{R}^\pi=
+                \begin{bmatrix}
+                    R^\pi(1,\pi(1))\\
+                    R^\pi(2,\pi(2))\\
+                    \vdots\\
+                    R^\pi(n,\pi(n))
+                \end{bmatrix}\\
+                \bm{P}^\pi=
+                \begin{bmatrix} % TODO: check arguments of \pi
+                    P_{11}^{\pi(1)} & P_{12}^{\pi(2)} & \cdots & P_{1n}^{\pi(n)}\\
+                    \vdots & & & \vdots\\
+                    P_{n1}^{\pi(1)} & P_{n2}^{\pi(2)} & \cdots & P_{nn}^{\pi(n)}
+                \end{bmatrix}\\
+            \end{align*}
+            and $(\mathbb{I}-\gamma\bm{P}^\pi)$ is guaranteed to be invertible for $\gamma<1$
+            \item Approximate solution of linear system using iterative methods (as inverse is computationally expensive)
+            \begin{align*}
+                V_{t+1}^\pi=R^\pi+\gamma P^\pi V_t^\pi
+            \end{align*}
+            \begin{itemize}
+                \item Guaranteed convergence
+                \item Aka fixed point iteration
+            \end{itemize}
+        \end{itemize}
+        \item Bellman operator
+        \begin{align*}
+            BV^{\pi_t}(x)\geq V^{\pi_t}(x),\ \forall x\in X
+        \end{align*}
+        where the Bellman operator $B$ is defined as
+        \begin{align*}
+            BV^\pi(x)=\max_a\left[R(x,a)+\gamma\mathbb{E}_{x'\sim P(x'|x,a)}[V^\pi(x')]\right]
+        \end{align*}
+        \begin{itemize}
+            \item Proof
+            \begin{align*}
+                BV^{\pi_t}(x)&=\max_a\left[R(x,a)+\gamma\mathbb{E}_{x'\sim P(x'|x,a)}[V^{\pi_t}(x')]\right]\\
+                &\geq R(x,\pi_t(x))+\gamma\mathbb{E}_{x'\sim P(x'|x,a)}[V^{\pi_t}(x')]\\
+                &=V^{\pi_t}(x)
+            \end{align*}
+            \item $V^\pi(x)$ will always increase or stay the same
+            \item Can converge to different optimal value and policy than value iteration
+        \end{itemize}
+        \item Linear convergence
+        \begin{align*}
+            V^{\pi_{t+1}}(x)\geq BV^{\pi_t}(x),\ \forall x\in X
+        \end{align*}
+        \begin{itemize}
+            \item Proof
+            \begin{itemize}
+                \item Fixed point iteration algorithm
+                \begin{algorithmic}
+                    \State Initialize $U_0=V^{\pi_t}$
+                    \For {$i=1,\dots, T$}
+                    \State $U_i(x)=R(x,\pi_{t+1}(x))+\gamma\mathbb{E}_{x'\sim P(x'|x,\pi_{t+1}(x))}U_{i-1}$
+                    \EndFor\\
+                    \Return $U_T$
+                \end{algorithmic}
+                shows that $U_1(x)=BV^{\pi_t}\geq V^{\pi_t}(x)=U_0(x)$
+                \item Next, show that $U_i$ is monotonically increasing by induction
+                \begin{align*}
+                    U_i(x)&=R(x,\pi_{t+1}(x))+\gamma\mathbb{E}_{x'\sim P(x'|x,\pi_{t+1}(x))}U_{i-1}\\
+                    &\geq R(x,\pi_{t+1}(x))+\gamma\mathbb{E}_{x'\sim P(x'|x,\pi_{t+1}(x))}U_{i-2}\\
+                    &=U_{i-1}(x)
+                \end{align*}
+                \item Finally,
+                \begin{align*}
+                    &V^{\pi_{t+1}}=U_{i\to\infty}\geq U_1=BV^{\pi_t}\\
+                    &\implies V^{\pi_{t+1}}(x)\geq V^{\pi_t}(x)
+                \end{align*}
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VALUE ITERATION}}
+    \begin{itemize}
+        \item Key idea: compute the infinite horizon return using dynamic programming (solving a big problem by iteratively solving subproblems of it)
+        \begin{enumerate}
+            \item Initialize $V_0(x)=0,\ t=0$
+            \item Repeat until convergence:
+            \begin{enumerate}
+                \item $Q_t(x,a)=r(x,a)+\gamma\sum_{x'}P(x'|x,a)V_{t-1}(x')\ \forall x,a$
+                \item $V_t(x)=\max_aQ_t(x,a)$
+                \item $t=t+1$
+            \end{enumerate}
+        \end{enumerate}
+        \item Convergence determined by $L_\infty$ norm
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VALUE- VS POLICY ITERATION}}
+    \begin{center}
+        \begin{minipage}[l]{0.4\linewidth}
+            \small
+            \textbf{Value iteration}
+            \begin{enumerate}
+                \item Compute optimal value for horizon $=k$
+                \item Increment $k$
+            \end{enumerate}
+            \begin{itemize}
+                \item Bellman optimality equation
+            \end{itemize}
+        \end{minipage}%
+        \hspace{5mm}
+        \begin{minipage}[c]{0.4\linewidth}
+            \centering
+            \small
+            \textbf{Policy iteration}
+            \begin{enumerate}
+                \item Compute infinite horizon value of policy
+                \item Use to select another (better) policy
+            \end{enumerate}
+            \begin{itemize}
+                \item Bellman expectation equation and greedy policy improvement
+            \end{itemize}
+        \end{minipage}
+    \end{center}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{MODIFYING MDPS}}
+    \begin{itemize}
+        \item Replacing $R=R(x,a,x')$ (in $M$) with $R'=R'(x,a)$ (in $M'$) without changing the optimal policies in $M$ and $M'$
+        \begin{itemize}
+            \item Introduce "auxiliary states" $\mathrm{aux}(x,a,x')$
+            \begin{align*}
+                &(x,a)\to\mathrm{aux}(x,a,x')\\
+                &(\mathrm{aux}(x,a,x'),b)\to x'\text{ for an action $b$}\\
+                &P'(x,a,\mathrm{aux}(x,a,x'))=P(x,a,x')\\
+                &P'(\mathrm{aux}(x,a,x'),b,x')=1\\
+                &R'(x,a)=0\\
+                &R'(\mathrm{aux}(x,a,x'),b)=\gamma^{-\frac{1}{2}}R(x,a,x')\\
+                &\gamma'=\gamma^{\frac{1}{2}}
+            \end{align*}
+        \end{itemize}
+        \item Replacing $R(x,a)$ (in $M$) with $R'=R'(x)$ without changing the optimal policies in $M$ and $M'$
+        \begin{itemize}
+            \item Introduce "auxiliary states" $\mathrm{aux}(x,a)$
+            \begin{align*}
+                &(x,a)\to\mathrm{aux}(x,a)\\
+                &P'(\mathrm{aux}(x,a),a,x')=P(x,a,x')\\
+                &P'(x,a,\mathrm{aux}(x,a)=1\\
+                &R'(x)=0\\
+                &R'(\mathrm{aux}(x,a),b)=\gamma^{-\frac{1}{2}}R(x,a)\\
+                &\gamma'=\gamma^{\frac{1}{2}}
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}

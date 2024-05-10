@@ -1,0 +1,123 @@
+\section{GAUSSIANS}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $\bm{X},\bm{Y},\bm{Z}$ & Gaussian random vectors (GRVs)\\
+        \addlinespace[2pt]
+        $\bm{\mu}$ & Mean vector\\
+        \addlinespace[2pt]
+        $\bm{\Sigma}$ & Covariance matrix
+    \end{tabularx}
+\end{yellowbox}
+
+
+\begin{whitebox}{\textbf{GAUSSIAN RANDOM VECTORS (GRVS)}}
+    \begin{itemize}
+        \item A GRV $\bm{X}=[X_1,X_2,\dots,X_n]^\top$ has $n$ components (real-valued Gaussian RVs)
+        \item $\bm{X}$ is a GRV if any linear combination of its coordinates is a univariate Gaussian i.e. the $X_i$ are jointly Gaussian:
+        \begin{align*}
+            a_1X_1+\dots+a_dX_d\text{ is Gaussian }\forall a_1,\dots,a_d\in\mathbb{R}
+        \end{align*}
+        \item Constructing GRVs with a desired mean $\bm{\mu}$ and variance $\bm{\Sigma}$ from a standard GRV $\bm{Y}=[X_1,\dots X_d]^\top\overset{i.i.d.}{\sim}\mathcal{N}(\bm{0},\mathbb{I})$
+        \begin{align*}
+            \bm{X}=\bm{\Sigma}^{1/2}\bm{Y}+\bm{\mu}\sim\mathcal{N}(\bm{\mu},\bm{\Sigma})
+        \end{align*}
+        \item PDF of GRV $\bm{X}$
+        \mathbox{
+            f(\bm{X};\bm{\mu},\bm{\Sigma})=\frac{1}{(2\pi)^{\sfrac{n}{2}}\sqrt{\det\bm{\Sigma}}}\exp\left(-\frac{1}{2}(\bm{X}-\bm{\mu})^T\bm{\Sigma}^{-1}(\bm{X}-\bm{\mu})\right)
+        }
+        \begin{align*}
+            &\bm{\Sigma}=
+            \begin{bmatrix}
+                \sigma_1^2 & \sigma_{12} & \hdots & \sigma_{1n}\\
+                \vdots & & & \vdots\\
+                \sigma_{n1} & \sigma_{n2} & \hdots & \sigma_n^2
+            \end{bmatrix}\\
+            &\sigma_i^2=\mathrm{Var}(X_i)=\mathbb{E}[(X_i-\mu_i)^2]\\
+            &\sigma_{i,j}=\mathrm{Cov}(X_i,X_j)=\mathbb{E}[(X_i-\mu_i)(X_j-\mu_j)]\\
+            &\bm{\mu}=\begin{bmatrix}
+                \mu_1 & \mu_2 & \hdots & \mu_n
+            \end{bmatrix}^T\\
+            &\mu_i=\mathbb{E}[X_i]
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{CONDITIONAL GAUSSIAN DISTRIBUTION}}
+    \begin{itemize}
+        \item Vector case
+        \begin{itemize}
+            \item GRV
+            $\bm{X_V}=[X_1,\hdots,X_n]\sim\mathcal{N}(\bm{\mu}_V,\bm{\Sigma}_{VV})$ with index set $V=\{1,\hdots,n\}$
+            \item Two disjoint subsets
+            \begin{itemize}
+                \item $A=\{i_1,\hdots i_k\}\in V$
+                \item $B=\{j_1,\hdots j_m\}\in V$
+            \end{itemize}
+            \item Conditional distribution is also Gaussian
+                \begin{align*}
+                    &p(\bm{X_A}| \bm{X_B}=\bm{x_B})=\mathcal{N}(\bm{\mu}_{A| B},\bm{\Sigma}_{A| B})\\
+                    & \bm{\mu}_{A|B}=\bm{\mu}_A+\bm{\Sigma}_{AB} \bm{\Sigma}_{BB}^{-1}\left(\bm{x}_B-\bm{\mu}_B\right) \\
+                    & \bm{\Sigma}_{A|B}=\bm{\Sigma}_{AA}-\bm{\Sigma}_{AB} \bm{\Sigma}_{BB}^{-1} \bm{\Sigma}_{BA}\\
+                    &\bm{\Sigma}_{AB}=
+                    \begin{bmatrix}
+                        \sigma_{i_1,j_1} & \hdots & \sigma_{i_1,j_m}\\
+                        \vdots & & \vdots\\
+                        \sigma_{i_k,j_1} & \hdots & \sigma_{i_k,j_m}
+                    \end{bmatrix}\in\mathbb{R}^{k\times m}
+                \end{align*}
+        \end{itemize}
+        \item Scalar case
+        \begin{itemize}
+            \item Jointly Gaussian RVs $X,Y$
+            \item $P(X|Y)$ is Gaussian with $\mu_{X|Y}$ linearly dependent on $Y$
+            \begin{align*}
+                &p(X|Y=y)=\mathcal{N}(\mu_{X|Y},\sigma^2_{X|Y})\\
+                & \mu_{X | Y=y}=\mu_X+\sigma_{X Y} \sigma_Y^{-2}\left(y-\mu_Y\right) \\
+                & \sigma_{X | Y}=\sigma_X^2-\sigma_{X Y}^2 \sigma_Y^{-2}
+            \end{align*}
+            \item Rewrite as $X=a Y+b+\epsilon$
+            \begin{align*}
+                &\epsilon \sim N\left(0, \sigma_{X | Y}^2\right) \\
+                &a=\sigma_{X Y} \sigma_Y^{-2}, b=\mu_X-\sigma_{X Y}^2 \sigma_Y^{-2} \mu_y
+            \end{align*}
+            \begin{itemize}
+                \item $X$ interpreted as linear function of $Y$ with independent Gaussian noise added
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+
+\begin{whitebox}{\textbf{PROPERTIES OF GRVS}}
+    \begin{itemize}
+        \item All marginals are Gaussian
+        \item Gaussian RVs are independent iff they are uncorrelated
+        \item Multiples of Gaussians are Gaussian
+        \begin{align*}
+            \bm{Y}=\bm{MX}_V\sim\mathcal{N}(\bm{M}\mu_V,\bm{M}\bm{\Sigma}_{VV}\bm{M}^T)
+        \end{align*}
+        \item Sums of Gaussians are Gaussian
+        \begin{align*}
+            \bm{Y}=\bm{X}+\bm{X}'\sim\mathcal{N}(\bm{\mu}_V+
+            \bm{\mu}'_V,\bm{\Sigma}_{VV}+\bm{\Sigma}'_{VV})
+        \end{align*}
+        where
+        \begin{align*}
+            &\bm{X}=\bm{X}_V=[X_1,\hdots,X_n]\sim\mathcal{N}(\bm{\mu}_V,\bm{\Sigma}_{VV})\\
+            &\bm{X'}=\bm{X}'_V=[X_1',\hdots,X_n']\sim\mathcal{N}(\bm{\mu}'_V,\bm{\Sigma}'_{VV})
+        \end{align*}
+        are 2 independent GRVs
+        \item Covariance matrix $\bm{\Sigma}$
+        \begin{itemize}
+            \item Symmetric
+            \item Positive semi-definite
+            \begin{itemize}
+                \item All eigenvalues non-negative
+                \item Quadratic form: $\bm{x}^\top\bm{\Sigma x}\succcurlyeq 0$ with equality iff $\bm{x}=0$
+                \item Cholesky decomposition $\bm{\Sigma}=\bm{LL}^\top$ exists
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+

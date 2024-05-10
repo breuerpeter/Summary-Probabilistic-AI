@@ -1,0 +1,255 @@
+\section{PROBABILITY}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $\Omega$ & Sample space\\
+        \addlinespace[2pt]
+        $\mathcal{F}\subseteq 2^\Omega$ & Event space \\
+        \addlinespace[2pt]
+        $A,B,C$ & Events\\
+        \addlinespace[2pt]
+        $X,Y,Z$ & Random variables (RVs)\\
+        \addlinespace[2pt]
+        $x,y,z$ & States of RVs $X,Y,Z$, respectively\\
+        \addlinespace[2pt]
+        $P(A):\mathcal{F}\to[0,1]$ & Probability that event $A\in\mathcal{F}$ happens\\
+        \addlinespace[2pt]
+        $P(X=x)$ & Probability of RV $X$ assuming state $x$\\
+        \addlinespace[2pt]
+        $p_X(x)=:p(x)$ & \makecell[l]{Probability mass function (PMF)\\ for discrete RV $X$}\\
+        \addlinespace[2pt]
+        $f_X(x)=:f(x)$ & \makecell[l]{Probability density function (PDF)\\ for continuous RV $X$}\\
+        \addlinespace[2pt]
+        $F_X(x)=:F(x)$ & \makecell[l]{Cumulative distribution function (CDF)}\\
+        \addlinespace[2pt]
+        $\mathbb{E}_X[X]=:\mathbb{E}[X]$ & Expectation of $X$\\
+        \addlinespace[2pt]
+        $\mathrm{Var}[X]$ & Variance of $X$
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{PROBABILITY SPACE AXIOMS}}
+    \begin{itemize}
+        \item Normalization
+        \begin{align*}
+            P(\Omega)=1
+        \end{align*}
+        \item Non-negativity
+        \begin{align*}
+            P(A)\geq0\ \forall A\in\mathcal{F}
+        \end{align*}
+        \item $\sigma$-additivity
+        \begin{align*}
+            \forall A_1,\hdots, A_n,\hdots\in\mathcal{F}\text{ disjoint:}\\
+            \left(\bigcup_{i=1}^{\infty} A_i\right)=\sum_{i=1}^{\infty} P\left(A_i\right)
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{DISTRIBUTIONS OF RANDOM VARIABLES}}
+    \begin{itemize}
+        \item Cumulative distribution function (CDF)
+        \begin{align*}
+            &F_X(x)=P(X\leq x)\\
+            &P(X\in(x_1,x_2])=F_X(x_2)-F_X(x_1)
+        \end{align*}
+        \item Probability mass function (PMF) for discrete RVs
+        \begin{align*}
+            P(X=x)=p_X(x)
+        \end{align*}
+        \item Probability density function (PDF) for continuous RVs
+        \begin{align*}
+            P(X\in[x_1,x_2])=\int_{x_1}^{x_1}f_X(x)\ dx
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{EXPECTATION}}
+    \begin{itemize}
+        \item Continuous RV $x$
+        \begin{align*}
+            \mathbb{E}[X]:=\mathbb{E}_{x\sim f(x)}[X]=\int_{-\infty}^{\infty}x\ f(x)\ dx\\
+        \end{align*}
+        \begin{itemize}
+            \item Expectation of a function $g(x)$
+            \begin{align*}
+                \mathbb{E}_{x\sim f(x)}[g(x)]=\int_{-\infty}^{\infty}g(x)\ f(x)\ dx
+            \end{align*}
+        \end{itemize}
+        \item Discrete RV $x$
+        \begin{align*}
+            \mathbb{E}[X]:=\mathbb{E}_{x\sim p(x)}[X]=\sum_i x_i\ p(x_i)
+        \end{align*}
+        \begin{itemize}
+            \item Expectation of a function $g(x)$
+            \begin{align*}
+                \mathbb{E}_{x\sim p(x)}[g(x)]=\sum_i g(x_i)\ p(x_i)
+            \end{align*}
+        \end{itemize}
+        \item Property
+        \begin{align*}
+            \mathbb{E}[aX+Y+b]=a\mathbb{E}[X]+\mathbb{E}[Y]+b\\
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VARIANCE}}
+    \begin{align*}
+        &\mathrm{Var}[X]:=\mathbb{E}[(X-\mathbb{E}[X])^2]=\mathbb{E}[X^2]-\mathbb{E}[X]^2\\
+        &\mathrm{Var}[aX+bY+c]=a^2\mathrm{Var}[X]+b^2\mathrm{Var}[Y]+2ab\mathrm{Cov}[X,Y]\\
+        &\mathrm{Var}[aX-bY+c]=a^2\mathrm{Var}[X]+b^2\mathrm{Var}[Y]-2ab\mathrm{Cov}[X,Y]\\
+    \end{align*}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{INDEPENDENCE}}
+    \begin{itemize}
+        \item Independent discrete RVs $X,Y,Z$
+        \mathbox{
+            P(X,Y,Z)=P(X)\cdot P(Y)\cdot P(Z)
+        }
+        \begin{align*}
+            \Longleftrightarrow P(X|Y)=P(X),\quad P(Y)>0
+        \end{align*}
+        \item Independent continuous RVs
+        \begin{align*}
+            &F_{X,Y}(x,y)=F_X(x)F_Y(y)\\
+            &f_{X,Y}(x,y)=f_X(x)f_Y(y)
+        \end{align*}
+        \item Discrete RVs $X,Y$ conditionally independent given $Z$
+        \mathbox{
+        P(X,Y| Z)=P(X| Z)\cdot P(Y| Z)
+        }
+        \begin{align*}
+            \Longleftrightarrow P(X| Y,Z)=P(X| Z),\quad P(Y| Z)>0
+        \end{align*}
+        \begin{itemize}
+            \item Given information provided by $Z$, $Y$ doesn't provide additional information on $X$
+            \item Notation for sets of RVs $\bm{X,Y,Z}$
+            \begin{align*}
+                \bm{X}\perp \bm{Y}|\bm{Z}
+            \end{align*}
+
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{RULES}}
+    \begin{itemize}
+        \item Conditional probability
+      \mathbox{
+          P(A| B)=\frac{P(A,B)}{P(B)},\quad P(B)\neq0
+      }
+      \item Product rule
+      \begin{align*}
+          P(X_{1:n})=P(X_1)\cdot P(X_2| X_1)\cdot P(X_3| X_{1:2})\cdot\hdots\cdot P(X_n| X_{1:n-1})
+      \end{align*}
+       \item Sum rule (marginalization)
+        \mathbox{
+            P(X_{1:i-1},X_{i+1:n})=\sum_{x_i}P(X_{1:i-1},x_i,X_{i+1,n})
+        }
+        \item Bayes' rule for events $A$ ($\{X=x\}$) and $B$ ($\{Y=y\}$)
+        \mathbox{
+            P(A|B)=\frac{P(B|A)P(A)}{P(B)}
+        }
+        \begin{itemize}
+            \item Discrete RVs $X,Y$
+            \begin{align*}
+                p(x|y)=\frac{p(y|x)p(x)}{p(y)}=\frac{p(y|x)p(x)}{\sum_{\{x_i\}}p(y|x_i)p(x_i)}
+            \end{align*}
+            \item Continuous RVs $X,Y$
+            \begin{align*}
+                f(x|y)=\frac{f(y|x)f(x)}{f(y)}=\frac{f(y|x)f(x)}{\int_{-\infty}^\infty f(y|\tilde{x})f(\tilde{x})\ d\tilde{x}}
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{CHANGE OF VARIABLES}}
+    \begin{itemize}
+        \item New continuous RV $Y=g(X)$, where $g:\mathbb{R}\mapsto\mathbb{R}$ is a differentiable bijection
+        \begin{align*}
+            f_Y(y)=f_X(g^{-1}(y))\left|\frac{d}{dy}(g^{-1}(y))\right|
+        \end{align*}
+        \begin{itemize}
+            \item Final term ensures invariance of probability in a differentiable area i.e. $|f_Y(y)dy|=|f_X(x)dx|$
+            \item For RV vectors $g:\mathbb{R}^d\mapsto\mathbb{R}^d$
+            \begin{align*}
+                f_Y(y)=f_X(g^{-1}(y))\left|\det D(g^{-1}(y))\right|
+            \end{align*}
+            where $D(g^{-1}(y))$ is the Jacobian of the inverse transformation
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{LAW OF THE UNCONSCIOUS STATISTICIAN}}
+    \begin{itemize}
+        \item Application of the change of variables with $Y=g(X)$
+        \item Discrete RV $X$
+        \begin{align*}
+            \mathbb{E}[Y]=\sum_{\{x_i\}}g(x_i)p(x_i)
+        \end{align*}
+        \item Continuous RV $X$
+        \begin{align*}
+            \mathbb{E}[Y]=\int_\mathbb{R}g(x)f(x)\ dx
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{CONDITIONAL EXPECTATION}}
+    \begin{align*}
+        \mathbb{E}[X|Y=y]=\int x\ f(x|y)\ dx
+    \end{align*}
+    \begin{itemize}
+        \item Conditional expectation $\mathbb{E}[X|Y=y]$ is a RV $g(Y)$
+        \item Intuitively, the sample space is divided into areas by different $Y$
+
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{LAW OF TOTAL EXPECTATION (TOWER PROPERTY)}}
+    \begin{itemize}
+        \item RVs $X,Y$ in the same probability space
+        \begin{align*}
+            \mathbb{E}\left[\mathbb{E}[X|Y]\right]=\mathbb{E}[X]
+        \end{align*}
+        \item Proof
+        \begin{align*}
+            \mathbb{E}\left[\mathbb{E}[X|Y]\right]&=\int\underbrace{\left(\int x\ f(x|y)\ dx\right)}_{\mathbb{E}[X|Y]=g(Y)}f(y)\ dy\\
+            &=\iint x\ f(x,y)\ dxdy\\
+            &=\int x\int f(x,y)dydx\\
+            &=\int x\ f(x) dx\\
+            &=\mathbb{E}[X]
+        \end{align*}
+        \item Discrete case: $\{A_i\}_i$ is a finite or countable partition of the sample space
+        \begin{align*}
+            \mathbb{E}[X]=\sum_i\mathbb{E}[X|A_i]P(A_i)
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{LAW OT TOTAL VARIANCE}}
+    \begin{align*}
+        \mathrm{Var}(X)=\mathbb{E}[\mathrm{Var}(X|Y)]+\mathrm{Var}(\mathbb{E}[X|Y])
+    \end{align*}
+    \begin{itemize}
+        \item Proof
+        \begin{align*}
+            \mathrm{Var}(X)&=\mathbb{E}[X^2]-\mathbb{E}[X]^2\\
+            &=\mathbb{E}[\mathbb{E}[X^2|Y]]-\mathbb{E}[\mathbb{E}[X|Y]]^2\\
+            &=\mathbb{E}[\mathrm{Var}[X|Y]+\mathbb{E}[X|Y]^2]-\mathbb{E}[\mathbb{E}[X|Y]]^2\\
+            &=\mathbb{E}[\mathrm{Var}(X|Y)]+\left(\mathbb{E}[\mathbb{E}[X|Y]^2]-\mathbb{E}[\mathbb{E}[X|Y]]^2\right)\\
+            &=\mathbb{E}[\mathrm{Var}(X|Y)]+\mathrm{Var}[\mathbb{E}[X|Y]]
+        \end{align*}
+        \begin{itemize}
+            \item $\mathrm{Var}(X|Y)$ is the conditional variance
+            \item $\mathbb{E}[\mathrm{Var}(X|Y)]$ is the average variance of $X$ given $Y$
+            \item $\mathrm{Var}(\mathbb{E}[X|Y])$ is the variance of the conditional averages
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{REPARAMETRIZATION TRICK}}
+    \begin{itemize}
+        \item 
+    \end{itemize}
+\end{whitebox}

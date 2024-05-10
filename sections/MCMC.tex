@@ -1,0 +1,155 @@
+\section{MARKOV CHAIN MONTE CARLO}
+
+"Latent" variables are the unoberserved/hidden parameters of our model
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $$ & Predictive posterior distribution\\
+        \addlinespace[2pt]
+        $$ & Marginal predictive posterior distribution\\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+   
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{MARKOV CHAIN MONTE CARLO (MCMC)}}
+    \begin{itemize}
+        \item MCMC methods produce a sequence of $T$ iterates (NN) weights $\bm{\theta}^{(1)},\dots,\bm{\theta}^{(T)}$ which by the ergodic theorem allow the estimation of the marginal predictive posterior distribution
+        \begin{align*}
+            p(y^*\mid\bm{x}^*,\bm{x}_{1:n},y_{1:n})\approx\frac{1}{m}\sum_{j=1}^mp(y^*\mid\bm{x}^*,\bm{\theta}^{(j)})
+        \end{align*}
+        \item Problem: for modern NN, this can become intractable as storing multiple parameter sets can be too expensive
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{MARKOV CHAINS (MCS)}}
+    \begin{itemize}
+        \item Definition
+        \begin{align*}
+            \{X_t\}_{t\in\mathbb{N}_0}\text{ s.t. }X_{t+1}\perp X_{0:t-1}\mid X_t
+        \end{align*}
+        i.e. $X_{t+1}$ and $X_{0:t-1}$ conditionally independent given $X_t$
+        \item Properties of interest
+        \begin{itemize}
+            \item Stationarity: $\pi(x')=\sum_xp(x'\mid x)\pi(x)$ for which $\pi$?
+            \item Convergence: $\lim_{t\to\infty}q_t=\pi$ for any initial distribution $q_0$?
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{ERGODIC THEOREM}}
+    \begin{itemize}
+        \item Fundamental theorem of ergodic Markov chains: an ergodic MC converges to its unique stationary distribution $\pi$
+        \begin{align*}
+            \mathbb{E}_{x\sim\pi}[f(x)]\overset{a.s.}{=}\lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^nf(x_i),\ x_i\sim X_i\mid x_{i-1}
+        \end{align*}
+        using the law of large numbers for Markov chains
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{DETAILED BALANCE}}
+    \begin{itemize}
+        \item A MC satisfies detailed balance w.r.t. a distribution $q$ iff the following holds $\forall x,x'$
+        \begin{align*}
+            q(x)p(x'\mid x)=q(x')p(x\mid x')
+        \end{align*}
+        \item Interpretations
+        \begin{itemize}
+            \item Rate of flow $x\to x'=$ rate of flow $x'\to x$
+            \item MC is the same if we run it forwards or backwards (reversibility)
+        \end{itemize}
+        \item Lemma: detailed balanced satisfied w.r.t. $q\implies q$ is stationary
+        \begin{itemize}
+            \item If we want MC to have stationary distribution $p(x)=\frac{1}{Z}q(x)$ it suffices to ensure $q(x)p(x'\mid x)=q(x')p(x\mid x')$
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{METROPOLIS-HASTINGS FRAMEWORK}}
+    \begin{itemize}
+        \item Metropolis-Hastings MC: given proposal distribution $r(\bm{x}'|\bm{x})$, define transitional probabilites $p$ such that the proposal is accepted with probability
+        \begin{align*}
+            \alpha(\bm{x}'\mid\bm{x})\doteq\min\left\{1,\frac{q(\bm{x}')r(\bm{x}\mid\bm{x}')}{q(\bm{x})r(\bm{x}'\mid\bm{x})}\right\}
+        \end{align*}
+        \item Interpretation
+        \begin{itemize}
+            \item Probability of proposing to \textit{return to} $\bm{x}$ at stationarity
+            \begin{align*}
+                \frac{1}{Z}q(\bm{x}')r(\bm{x}|\bm{x}')
+            \end{align*}
+            \item Probability of proposing to \textit{go to} $\bm{x}'$ at stationarity
+            \begin{align*}
+                \frac{1}{Z}q(\bm{x})r(\bm{x}'|\bm{x})
+            \end{align*}
+        \end{itemize}
+        \item Lemma: for \textit{any} proposal distribution $r$, a Metropolis-Hastings MC has stationary distribution $p(\bm{x})=\frac{1}{Z}q(\bm{x})$
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{GIBBS SAMPLING}}
+    \begin{itemize}
+        \item Metropolis-Hastings algorithm with acceptance distribution $\alpha(\bm{x}'|\bm{x})=1$, which follows from the proposal distribution
+        \begin{align*}
+            r(\bm{x}'|\bm{x})=
+            \begin{cases}
+                p(x_i'\mid\bm{x}_{-i}') & \bm{x}'\text{ differs from $\bm{x}$ only in entry $i$}\\
+                0 & \text{otherwise}
+            \end{cases}
+        \end{align*}
+        where $i\sim\mathrm{Unif}(\{1,\dots,n\})$ and
+        \begin{align*}
+            p(x_i'\mid\bm{x}_{-i}')=\frac{p(x_i,\bm{x}_{-i})}{\sum_{x_i}p(x_i,\bm{x}_{-i})}=\frac{q(x_i,\bm{x}_{-i})}{\sum_{x_i}q(x_i,\bm{x}_{-i})}
+        \end{align*}
+        with the latter being tractable
+        \begin{itemize}
+            \item Has stationary distribution $p(\bm{x})$
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{FROM ENERGY TO SURPRISE (AND BACK)}}
+    \begin{enumerate}
+        \item Take \textit{any} energy function $f:\mathbb{R}^n\to\mathbb{R}$
+        \begin{itemize}
+            \item Negative log-likelihood: $f(\bm{\theta})=-\log p(y_{1:n}|\bm{\theta},\bm{x}_{1:n})$
+            \item Negative log-posterior: $f(\bm{\theta})=-\log p(\bm{\theta}|\bm{x}_{1:n},y_{1:n})$
+            \item Any loss $l(\bm{\theta})$ can be thought of as an energy
+        \end{itemize}
+        \item Induces (maximum entropy) distribution
+        \begin{align*}
+            p(\bm{\theta}=\frac{1}{Z}\exp(-f(\bm{\theta})
+        \end{align*}
+        \item The surprise about $\bm{\theta}$ is 
+        \begin{align*}
+            S[p(\bm{\theta})]=f(\bm{\theta})+\log Z
+        \end{align*}
+        \item Energy is an unnormalized surprise
+        \begin{align*}
+            f(\bm{\theta})=S[p(\bm{\theta})]+const.
+        \end{align*}
+    \end{enumerate}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VARIATIONAL INFERENCE VS. MCMC}}
+    \begin{itemize}
+        \item Variational inference
+        \begin{itemize}
+            \itemPro Optimization problem efficiently solvable
+            \itemCon Implicit bias through choice of variational family (no convergence to true posterior)
+        \end{itemize}
+        \item MCMC
+        \begin{itemize}
+            \itemPro Asymptotic convergence
+            \itemPro Convergence rates for some posteriors
+            \itemCon Dependent samples
+            \itemCon Unclear when samples are "good enough"
+            \itemCon Generally less efficient than variational inference
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}

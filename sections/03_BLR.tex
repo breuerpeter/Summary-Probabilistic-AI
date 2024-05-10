@@ -1,0 +1,30 @@
+\section{BAYESIAN LINEAR REGRESSION}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $y(\bm{x})$ & Noisy observation model\\
+        \addlinespace[2pt]
+        $\bm{\theta}$ & Parameter vector\\
+        \addlinespace[2pt]
+        $\bm{\epsilon}$ & Gaussian, zero-mean i.i.d. noise\\
+        \addlinespace[2pt]
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{BAYESIAN LINEAR REGRESSION}}
+    \begin{itemize}
+        \item Observation model
+        \begin{align*}
+            y(\bm{x})=\bm{x}^\top \bm{\theta}+\bm{\epsilon},\quad\bm{\epsilon}\overset{i.i.d.}{\sim}\mathcal{N}(\bm{0},\sigma_y^2\mathbb{I})
+        \end{align*}
+        \item Prior
+        \begin{align*}
+            \bm{\theta}\sim\mathcal{N}(\bm{0},\bm{\Sigma})
+        \end{align*}
+        \item Properties
+        \begin{align*}
+            &\mathbb{E}[f(\bm{x})]=\bm{x}^\top\mathbb{E}[\bm{\theta}]=\bm{0}\\
+            &\mathbb{E}[f(\bm{x})f(\bm{x}')]=\bm{x}^\top\mathbb{E}[\bm{\theta\theta}^\top]\bm{x}^\top=\bm{x}^\top\bm{\Sigma} \bm{x}^\top % TODO: this seems wrong
+        \end{align*}
+    \end{itemize}
+\end{whitebox}

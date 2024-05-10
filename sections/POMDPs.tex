@@ -1,0 +1,111 @@
+\section{PARTIALLY OBSERVABLE MDPS}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $M$ & Partially observable MDP (POMDP)\\
+        \addlinespace[2pt]
+        $\Upsilon$ & Finite set of observations\\
+        $O$ & Observation probabilities\\
+        $\mathcal{B}$ & Belief state space\\
+        $b_t(x)$ & Belief state\\
+        $\tau$ & Belief state transition probabilities\\
+        $\rho(b,a)$ & Reward function\\
+        $$ & \\
+        $$ & \\
+   
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{PARTIALLY OBSERVABLE MDPS (POMDPS)}}
+    \begin{itemize}
+        \item Capture both actuator uncertainty and noisy observations from the environment
+        \item POMDP: tuple $(X,A,P,R,\gamma,\Upsilon,O)$
+        \begin{align*}
+            O_{x'y}:=P(\Upsilon_{t+1}=y|X_{t+1}=x')
+        \end{align*}
+        \item Assumptions
+        \begin{itemize}
+            \item Transition dynamics
+            \item Reward
+            \item Observation model
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{BELIEF STATE SPACE}}
+    \begin{itemize}
+        \item Belief state
+        \begin{align*}
+            b_t(x)=P(X_t=x\mid y_{1:t},A_{t-1}=a)
+        \end{align*}
+        \begin{itemize}
+            \item Defines probability distribution over the states
+            \item Probability simplex/belief state space
+            \begin{align*}
+                b_t(x)\in\Delta^{|X|}=\{b\in\mathbb{R}^{|X|},b\geq0,\sum_{i=1}^{|X|}b_i=1\}
+            \end{align*}
+        \end{itemize}
+        \item Belief state space
+        \begin{align*}
+            \mathcal{B}=\Delta^{|X|}
+        \end{align*}
+        \begin{itemize}
+            \item Set of all possible probability distributions over $X$
+        \end{itemize}
+        \item Updating the belief state
+        \begin{center}
+            \resizebox{0.90\textwidth}{!}{$
+            \begin{aligned}
+                b_{t+1}(x)&=P(X_{t+1}=x\mid y_{1:t+1},A_t=a)\\
+                &=\frac{P(y_{t+1}\mid X_{t+1}=x,y_{1:t},A_t=a)P(X_{t+1}=x\mid y_{1:t},A_t=a)}{\underbrace{P(y_{t+1}\mid y_{1:t},A_t=a)}_{=:Z}}\\
+                &=\frac{1}{Z}P(y_{t+1}\mid X_{t+1}=x)\sum_{x'}P(x'\mid y_{1:t},a')P(x\mid x',a)\\
+                &=\frac{1}{Z}O(y_{t+1},x)\sum_{x'}b_t(x')P(x\mid x',a)
+            \end{aligned}$}    
+        \end{center}
+        where 
+        \begin{align*}
+            Z=\sum_xO(y_{t+1},x)\sum_{x'}b_t(x')P(x\mid x',a)
+        \end{align*}
+        is a normalizing constant
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{BELIEF MDP}}
+    \begin{itemize}
+        \item Belief MDP: tuple $(\mathcal{B},A,\tau,\rho)$
+        \begin{align*}
+            \rho(b,a)=\sum_xb(x)r(x,a)
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{SOLVING POMDPS}}
+    \begin{itemize}
+        \item Turn POMDP into continuous-state belief MDP
+        \item Learn a policy that predicts best action given a belief state
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{POLICY TREES}}
+    \begin{itemize}
+        \item Tree that dictates a sequence of actions, dependent on the observations made
+        \item Each time an observation is made, the branch splits
+        \item Typically finite horizon (number of trees grow exponentially)
+        \item $\alpha$-vector
+        \begin{itemize}
+            \item Value function for the belief state $b$ (linear function over the belief)
+            \begin{align*}
+                V(b)=\alpha\cdot b
+            \end{align*}
+            \item Best policy captures the upper envelope traced out by these different linear functions
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{ADJUSTED VALUE ITERATION FOR POMDPS}}
+    \begin{enumerate}
+        \item Compute $\alpha$-vectors for horizon $h$
+        \item Use the values computed from the new subtrees at horizon $h-1$ to calculate a set of new $\alpha$-vectors
+        \item More sophisticated algorithms use pruning strategies to reduce set of $\alpha$-vectors (because some just don't make sense)
+    \end{enumerate}
+\end{whitebox}

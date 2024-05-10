@@ -1,0 +1,440 @@
+\section{VARIATIONAL INFERENCE}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $S[P(A)]$ & Surprise of event $A$\\
+        \addlinespace[2pt]
+        $H[p]$ & Entropy\\
+        \addlinespace[2pt]
+        $H[p\| q]$ & Cross-entropy\\
+        \addlinespace[2pt]
+        $\mathrm{KL}(p\| q)$ & Kullback-Leibler (KL) Divergence\\
+        \addlinespace[2pt]
+        $p$ & True data probability distribution\\
+        \addlinespace[2pt]
+        $q$ & Tractable approximation of $p$
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{EXACT INFERENCE}}
+    \mathbox{
+        p(y^*\mid \bm{x}^*,\bm{x}_{1:n},\bm{y}_{1:n})=\int \underbrace{p(y^*\mid \bm{x}^*,\bm{\theta})}_{\text{Likelihood}}\underbrace{p(\bm{\theta}\mid \bm{x}_{1:n},\bm{y}_{1:n})}_{\text{Posterior}}\ d\bm{\theta}
+    }
+    \begin{itemize}
+        \item Closed form exists only for Gaussian prior over $\bm{\theta}$
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{SURPRISE}}
+    \mathbox{
+        S[u]\doteq -\log u
+    }
+    \begin{itemize}
+        \item Axioms
+        \begin{itemize}
+            \item $S[1]=0$
+            \item $S[u]>S[v]\implies u<v$
+            \item $S$ continuous
+            \item $S[uv]=S[u]+S[v]$ for independent events
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{ENTROPY}}
+    \mathbox{
+        H[p]\doteq\mathbb{E}_{x\sim p}[-\log p(\bm{x})]
+    }
+    \begin{itemize}
+        \item Continuous RVs
+        \begin{align*}
+            H[p]\doteq -\int p(\bm{x}\ln p(\bm{x})\ d\bm{x}
+        \end{align*}
+        \item Discrete RVs
+        \begin{align*}
+            H[p]\doteq -\sum_x p(x)\log_2p(x)
+        \end{align*}
+        \item Gaussian RVs
+        \begin{itemize}
+            \item Scalar case
+            \begin{align*}
+                H[\mathcal{N}(\mu,\sigma^2)]=\log(\sigma\sqrt{2\pi e})
+            \end{align*}
+            \item Vector case $(\bm{x}\in\mathbb{R}^d)$
+            \begin{align*}
+                H[\mathcal{N}(\bm{\mu},\bm{\Sigma})]=\frac{d}{2}\log(2\pi e)+\frac{1}{2}\log\det(\bm{\Sigma})
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{CROSS-ENTROPY}}
+    \mathbox{
+        H[p\| q]\doteq\mathbb{E}_{\bm{x}\sim p}[-\log q(\bm{x})]\geq H(p)
+    }
+    \begin{itemize}
+        \item Expected surprise in samples from $p$ w.r.t. $q$
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{KULLBACK-LEIBLER (KL) DIVERGENCE}}
+    \begin{itemize}
+        \item Expected \textit{additional} surprise when assuming the "wrong" distribution $q$
+        \mathbox{
+            \mathrm{KL}(p\|q)\doteq H[p\| q]-H[p]=\int p(\bm{\theta})\log\frac{p(\bm{\theta})}{q(\bm{\theta})}\ d\bm{\theta}
+        }
+        \begin{itemize}
+            \item Large when $p(\bm{\theta})$ is large and $q(\bm{\theta})$ is small $\implies$ a good approximation $q$ assigns high probability to outcomes that are likely according to $p$ i.e. KL divergence penalizes underestimation
+        \end{itemize}
+        \item Properties
+        \begin{itemize}
+            \item $\mathrm{KL}(p\|q)\geq 0$
+            \item $\mathrm{KL}(p\|q)=0\Longleftrightarrow p=q$ almost surely
+            \item $\mathrm{KL}(p\|q)\neq \mathrm{KL}(q\| p)$ (not generally symmetric)
+        \end{itemize}
+    \end{itemize}
+    \begin{align*}
+        \mathrm{KL}(q_{\bm{\lambda}}\|p)=\int q_{\bm{\lambda}}(\bm{\theta})\log\frac{q_{\bm{\lambda}}(\bm{\theta})}{p(\bm{\theta}\mid \bm{x}_{1:n},y_{1:n})}\ d\bm{\theta}
+    \end{align*}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{REVERSE KL DIVERGENCE}}
+    \begin{align*}
+        \mathrm{KL}(q\| p)
+    \end{align*}
+    \begin{itemize}
+        \item Reverse KL divergence and evidence lower bound
+        \begin{align*}
+            &\arg\min_q\mathrm{KL}(q(\cdot)\|p(\cdot\mid \bm{x}_{1:n},y_{1:n}))\\
+            &={\color{blue}\arg\max_q\mathbb{E}_{\bm{\theta}\sim q}[\log p(y_{1:n}\mid \bm{x}_{1:n},\bm{\theta})]-\mathrm{KL}(q\| p(\cdot))}\\
+            &={\color{red}\arg\max_q}\underbrace{{\color{red}\mathbb{E}_{\bm{\theta}\sim q}[\log p(y_{1:n},\bm{\theta}\mid \bm{x}_{1:n})]+H[q]}}_{\text{Evidence lower bound (ELBO)}}
+        \end{align*}
+        Distributions $q$ that maximize the expected {\color{red}joint} or {\color{blue}conditional} data likelihood, but are also {\color{red}uncertain}/{\color{blue}close to the prior} are preferred
+        \item Minimizing the KL divergence is equivalent to maximizing the ELBO
+        \item Depending on the choice of prior and $q$, different forms of the ELBO are used
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{JENSEN'S INEQUALITY}}
+    \begin{itemize}
+        \item The negative log-evidence is the surprise about observations
+        \begin{align*}
+            \underbrace{\log p(y_{1:n}\mid \bm{x}_{1:n})}_{\text{Log-evidence}}&=\log\int p(y_{1:n},\bm{\theta}\mid \bm{x}_{1:n})d\bm{\theta}\\
+            &=\log\int q(\bm{\theta})\frac{p(y_{1:n},\bm{\theta})\mid \bm{x}_{1:n})}{q(\bm{\theta})}\ d\bm{\theta}\\
+            &=\log\mathbb{E}_{\bm{\theta}\sim q}\left[\frac{p(y_{1:n},\bm{\theta}\mid \bm{x}_{1:n})}{q(\bm{\theta})}\right]\\
+            &\geq\underbrace{\mathbb{E}_{\bm{\theta}\sim q}[\log p(y_{1:n},\bm{\theta}\mid \bm{x}_{1:n})]+H[q]}_{\text{ELBO}}
+        \end{align*}
+        \item For the family of Gaussian distributions $q(\bm{\theta})=\mathcal{N}(\bm{\mu},\bm{\Sigma})$, using the reparameterization trick, the ELBO becomes
+        \begin{center}
+            \resizebox{0.90\textwidth}{!}{$
+            \begin{aligned}
+                \mathbb{E}_{\bm{\epsilon}\sim\mathcal{N}(\bm{0},\mathbb{I})}[\log p(y_{1:n},\bm{\mu}+\bm{\Sigma}^{\frac{1}{2}}\bm{\epsilon}\mid \bm{x}_{1:n}))]+\frac{1}{2}\log|\bm{\Sigma}|+\frac{D}{2}\log 2\pi e
+            \end{aligned}$}    
+        \end{center}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{FWD KL DIVERGENCE \& LIKELIHOOD MAXIMIZATION}}
+    \begin{itemize}
+        \item Lemma:\\
+        Minimizing the KL divergence from the parameterized likelihood $q_{\bm{\lambda}}(\bm{x})=q(\bm{x\mid \bm{\lambda}})$ to the true data distribution $p(\bm{x})$ is equivalent to maximizing the model likelihood w.r.t. $\bm{\lambda}$
+        \begin{align*}
+            \arg\min_{\bm{\lambda}}KL(p\|q_{\bm{\lambda}})\overset{\text{a.s.}}{=}\arg\max_{\bm{\lambda}}\lim_{n\to\infty}\sum_{i=1}^n\log q(\bm{x}^{(i)}\mid \bm{\lambda})
+        \end{align*}
+        where $\bm{x}^{(i)}\sim p$ are independent samples from the true data distribution
+        \item Proof
+        \begin{align*}
+            KL(p\|q_{\bm{\lambda}})&=H[p\|q_{\bm{\lambda}}]-H[p]\\
+            &=\mathbb{E}_{\bm{x}\sim p}[-\log q_{\bm{\lambda}}(\bm{x})]+const.\\
+            &\overset{\text{a.s.}}{=}\lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^n\log q_{\bm{\lambda}}(\bm{x}^{(i)})+const.
+        \end{align*}
+        using the law of large numbers
+        \begin{itemize}
+            \item The negative log-likelihood is the surprise about observations under $\bm{\lambda}$
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{ALTERNATIVE GAUSSIAN PDF REPRESENTATION}}
+    \begin{align*}
+        \mathcal{N}(\bm{\theta};\bm{\mu},\bm{\Sigma})&\propto\exp\left(-\frac{1}{2}(\bm{\theta}-\bm{\mu})^{\top}\bm{\Sigma}^{-1}(\bm{\theta}-\bm{\mu})\right)\\
+        &\propto\exp\left(\operatorname{tr}\left(-\frac{1}{2} \bm{\theta}^{\top} \bm{\Sigma}^{-1} \bm{\theta}\right)+\bm{\theta}^{\top} \bm{\Sigma}^{-1} \bm{\mu}\right)\\
+        &=\exp\left(\operatorname{tr}\left(-\frac{1}{2} \bm{\theta} \bm{\theta}^{\top} \bm{\Sigma}^{-1}\right)+\bm{\theta}^{\top} \bm{\Sigma}^{-1} \bm{\mu}\right)\\
+        &=\exp\left(\operatorname{vec}\left[-\frac{1}{2} \bm{\theta} \bm{\theta}^{\top}\right]^{\top} \operatorname{vec}\left[\bm{\Sigma}^{-1}\right]+\bm{\theta}^{\top} \bm{\Sigma}^{-1} \bm{\mu}\right)
+    \end{align*}
+    \begin{center}
+        therefore,
+    \end{center}
+    \mathbox{
+        \mathcal{N}(\bm{\theta};\bm{\mu},\bm{\Sigma})=\frac{1}{Z(\bm{\eta})} \exp\left(\bm{\eta}^{\top}\bm{u}(\bm{\theta})\right)
+    }
+    \begin{center}
+        where
+    \end{center}
+    \begin{align*}
+        \bm{\eta} & \doteq
+        \begin{bmatrix}
+            \bm{\Sigma}^{-1} \bm{\mu}\\
+            \operatorname{vec}\left[\bm{\Sigma}^{-1}\right]
+        \end{bmatrix}\\
+        \bm{u}(\bm{\theta}) & \doteq
+        \begin{bmatrix}
+            \bm{\theta}\\
+            \operatorname{vec}\left[-\frac{1}{2} \bm{\theta} \bm{\theta}^{\top}\right]
+        \end{bmatrix}\\
+        Z(\bm{\eta}) & \doteq \int \exp \left(\bm{\eta}^{\top} \bm{u}(\bm{\theta})\right) d \bm{\theta}
+    \end{align*}
+
+
+\end{whitebox}
+
+\begin{whitebox}{\textbf{FWD KL DIVERGENCE \& MOMENT MATCHING}}
+    \begin{itemize}
+        \item Lemma:\\
+        Taking $q=\arg\min_{q\in\mathcal{Q}}KL(p\|q)$, where $\mathcal{Q}$ is the family of Gaussians, $q$ "matches" the 1st and 2nd moments of $p$
+        \item Proof:
+        \begin{enumerate}
+            \item Express the forward KL divergence as
+            \begin{align*}
+                \mathrm{KL}(p\|q)&=\int p(\bm{\theta})\log\frac{p(\bm{\theta})}{q(\bm{\theta})}\ d\bm{\theta}\\
+                &=-\int p(\bm{\theta})\ \bm{\eta}^\top\bm{u}(\bm{\theta})d\bm{\theta}+\log Z(\bm{\eta})+const.
+            \end{align*}
+            \item Differentiate w.r.t. $\bm{\eta}$
+            \begin{center}
+                \resizebox{0.90\textwidth}{!}{$
+                \begin{aligned}
+                    \bm{\nabla}\mathrm{KL}(p\|q)&=-\int p(\bm{\theta})\bm{u}(\bm{\theta})\ d\bm{\theta}+\frac{1}{Z(\bm{\eta})}\int \bm{u}(\bm{\eta})\exp(\bm{\eta}^\top\bm{u}(\bm{\theta}))\ d\bm{\theta}\\
+                    &=-\mathbb{E}_{\bm{\theta}\sim p}[\bm{u}(\bm{\theta})]+\mathbb{E}_{\bm{\theta}\sim q}[\bm{u}(\bm{\theta})]
+                \end{aligned}$}    
+            \end{center}
+            \item Hence, for any minimizer of $\mathrm{KL}(p\|q)$
+            \begin{align*}
+                &\mathbb{E}_{\bm{\theta}\sim p}[\bm{u}(\bm{\theta})]=\mathbb{E}_{\bm{\theta}\sim q}[\bm{u}(\bm{\theta})]\implies\mathbb{E}_{p}[\bm{\theta}]=\mathbb{E}_{q}[\bm{\theta}]\\
+                &\mathbb{E}_p\left[-\frac{1}{2}\bm{\theta}\bm{\theta}^\top\right]=\mathbb{E}_q\left[-\frac{1}{2}\bm{\theta}\bm{\theta}^\top\right]
+            \end{align*}
+        \end{enumerate}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{LAPLACE APPROXIMATION}}
+    \begin{itemize}
+        \item Approximate an intractable posterior $p(\bm{\theta}|\bm{y})=\frac{1}{Z}p(\bm{\theta},\bm{y})$ with a Gaussian constructed using a 2nd order Taylor expansion around the mode $\hat{\bm{\theta}}$ of the posterior (MAP estimate)
+        \item Matches mode of $p$ and 2nd derivative of $-\log p$
+        \item Laplace approximation of a Gaussian is exact
+        \begin{itemize}
+            \item Scalar case
+            \begin{enumerate}
+                \item 2nd-order Taylor expansion around\\
+                $\hat{\theta}=\arg\max_\theta p(\theta,y)$
+                \begin{center}
+                    \resizebox{0.80\textwidth}{!}{$
+                    \begin{aligned}
+                        \log p(\theta\mid y)\approx\log p(\hat{\theta}\mid y) & +\cancelto{0}{\frac{\partial}{\partial\theta}\log p(\theta\mid y)\biggr\rvert_{\theta=\hat{\theta}}}(\theta-\hat{\theta})+\dots\\
+                        &\dots+\underbrace{\frac{\partial^2}{\partial\theta^2}\log p(\theta\mid y)\biggr\rvert_{\theta=\hat{\theta}}}_{=\frac{\partial^2}{\partial \theta^2}\log p(\theta, y)\bigr\rvert_{\theta=\hat{\theta}}} \frac{(\theta-\hat{\theta})^2}{2} \\
+                        & =\log p(\hat{\theta}\mid y)-\underbrace{\left(-\frac{\partial^2}{\partial\theta^2}\log p(\theta, y)\biggr\rvert_{\theta=\hat{\theta}}\right)}_{=\sigma^{-2}} \frac{(\theta-\hat{\theta})^2}{2}\\
+                        &=\log p(\hat{\theta}\mid y)-\frac{(\theta-\hat{\theta})^2}{2\sigma^2}
+                    \end{aligned}$}    
+                \end{center}
+                where we used the fact that the gradient is zero at the MAP, and that $p(\theta|y)=\frac{1}{Z}p(\theta,y)$ with a scalar $Z$
+                \item Exponentiate
+                \begin{align*}
+                    p(\theta\mid y)\approx p(\hat{\theta}\mid y)\exp\left(-\frac{(\theta-\hat{\theta})^2}{2\sigma^2}\right)
+                \end{align*}
+                \item Normalize
+                \begin{center}
+                    \resizebox{0.80\textwidth}{!}{$
+                    \begin{aligned}
+                        \left(\int {\color{red}p(\hat{\theta}\mid y)}\exp\left(-\frac{(\theta-\hat{\theta})^2}{2\sigma^2}\right)\ d\theta\right)^{-1}{\color{red}p(\hat{\theta}\mid y)}\exp\left(-\frac{(\theta-\hat{\theta})^2}{2\sigma^2}\right)\\
+                        =\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(\theta-\hat{\theta})^2}{2\sigma^2}\right)
+                    \end{aligned}$}    
+                \end{center}
+            \end{enumerate}
+            \item Multivariate case
+            \begin{itemize}
+                \item $\frac{d}{d\theta}\log p(\theta| y)\bigr\rvert_{\theta=\hat{\theta}}\to\bm{\nabla}_{\bm{\theta}}\log p(\bm{\theta}|y)\bigr\rvert_{\theta=\hat{\theta}}$
+                \item $\frac{d^2}{d\theta^2}\log p(\theta| y)\bigr\rvert_{\theta=\hat{\theta}}\to\bm{\nabla}^2_{\bm{\theta}}\log p(\bm{\theta}|y)\bigr\rvert_{\theta=\hat{\theta}}=\bm{H}_{\hat{\bm{\theta}}}$
+            \end{itemize}
+            \begin{center}
+                \resizebox{0.80\textwidth}{!}{$
+                \begin{aligned}
+                    \log p(\mathcal{D},\hat{\bm{\theta}})&\approx\log p(\mathcal{D},\bm{\theta})+\frac{1}{2}(\bm{\theta}-\hat{\bm{\theta}})^\top\bm{H}_{\hat{\bm{\theta}}}(\bm{\theta}-\hat{\bm{\theta}})\\
+                    p(\mathcal{D})&\approx\int\exp\left[\log p(\mathcal{D},\hat{\bm{\theta}})+\frac{1}{2}(\bm{\theta}-\hat{\bm{\theta}})^\top\bm{H}_{\hat{\bm{\theta}}}(\bm{\theta}-\hat{\bm{\theta}})\right]\ d\bm{\theta}\\
+                    &=p(\mathcal{D},\hat{\bm{\theta}})(2\pi)^\frac{D}{2}\det(-\bm{H}_{\hat{\bm{\theta}}})^{-\frac{1}{2}}
+                \end{aligned}$}    
+            \end{center}
+            \begin{itemize}
+                \item The approximate posterior is the Gaussian $\mathcal{N}(\hat{\bm{\theta}},\bm{H}_{\hat{\bm{\theta}}}^{-1})$
+                \item The Hessian $\bm{H}_{\hat{\bm{\theta}}}$ is a square matrix that we can neither compute nor store for large $P$ and might be indefinite
+                \begin{itemize}
+                    \item Use simplifications such as diagonal Hessian (see Bayes by backprop) or better: structured Hessian approximations like KFAC
+                \end{itemize}
+            \end{itemize}
+            \begin{enumerate}
+                \item Let
+                \begin{align*}
+                    p(\bm{\theta})=\frac{1}{Z}\exp\left(-\frac{1}{2}(\bm{\theta}-\bm{\mu})^\top\bm{\Sigma}^{-1}(\bm{\theta}-\bm{\mu})\bm{H}_{\hat{\bm{\theta}}}(\bm{\theta}-\bm{\mu})^\top\right)
+                \end{align*}
+                \item Notice that
+                \begin{align*}
+                    &\bm{\nabla}_{\bm{\theta}}\log p(\bm{\theta})=-\frac{1}{2}(2\bm{\Sigma}^{-1}\bm{\theta}-2\bm{\Sigma}^{-1}\bm{\mu})\overset{!}{=}0\implies\hat{\bm{\theta}}=\bm{\mu}\\
+                    &\bm{H}_{\bm{\theta}}\log p(\theta)=\bm{\nabla}_{\bm{\theta}}(\bm{\Sigma}^{-1}\bm{\mu}-\bm{\Sigma}^{-1}\bm{\theta})=-\bm{\Sigma}^{-1}
+                \end{align*}
+            \end{enumerate}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{CURVATURE AND RELATIONSHIP BETWEEN LAPLACE AND GAUSSIAN VI}}
+    \begin{itemize}
+        \item Expectation/sampling in Gaussian VI (another method of approximating the marginal predictive posterior distribution) means it has a more global notion of curvature using the Hessian
+        \begin{center}
+            \begin{minipage}[c]{0.4\linewidth}
+                \centering
+                \small
+                \textbf{Laplace}
+                \begin{align*}
+                    0&=\nabla_{\bm{\theta}}\log p(\mathcal{D},\bm{\theta})\bigr\rvert_{\bm{\theta}=\hat{\bm{\theta}}}\\
+                    \bm{\Sigma}^{-1}&=-\nabla_{\bm{\theta}}^2\log p(\mathcal{D},\bm{\theta})\bigr\rvert_{\bm{\theta}=\hat{\bm{\theta}}}
+                \end{align*}
+            \end{minipage}%
+            \hspace{5mm}
+            \begin{minipage}[c]{0.4\linewidth}
+                \centering
+                \small
+                \textbf{Gaussian VI}
+                \begin{align*}
+                    0&=\mathbb{E}_{q(\bm{\theta})}[\nabla_{\bm{\theta}}\log p(\mathcal{D},\bm{\theta})]\\
+                    \bm{\Sigma}^{-1}&=-\mathbb{E}_{q(\bm{\theta})}[\nabla_{\bm{\theta}}^2\log p(\mathcal{D},\bm{\theta})]
+                \end{align*}
+            \end{minipage}
+        \end{center}
+        \item Laplace is \textit{post-hoc}
+        \item Gaussian VI requires special optimization
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VARIATIONAL INFERENCE}}
+    \begin{itemize}
+        \item Approximate an intractable posterior $p(\bm{\theta}| \bm{y})=\frac{1}{Z}p(\bm{\theta},\bm{y})$ with a simpler distribution $q$ that is "as close as possible"
+        \begin{align*}
+            p(\bm{\theta}\mid\mathcal{D})=\frac{1}{Z}p(\bm{\theta},y_{1:n}\mid\bm{x}_{1:n})\approx q(\bm{\theta};\lambda)
+        \end{align*}
+        \item Simple distribution $q$ is chosen from a family of distributions $\mathcal{Q}$ and parameterized by $\lambda$
+        \item The objective is to minimize the KL divergence of $q$ from the posterior $p(\bm{\theta}|\mathcal{D})$
+        \begin{align*}
+            &\arg\min_{q\in\mathcal{Q}}\mathrm{KL}(q\|p)\\
+            &=\arg\min_{\bm{\lambda}\in\Lambda}\mathrm{KL}(q_{\bm{\lambda}}\|p)\\
+            &=\arg\min_{\bm{\lambda}\in\Lambda}\mathrm{KL}(q(\bm{\theta}|\bm{\lambda})\|p(\bm{\lambda}))-\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}(\log p(\mathcal{D}|\bm{\theta})\\
+            &=\arg\min_{\bm{\lambda}\in\Lambda}\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}\left[\log\frac{q(\bm{\theta}|\bm{\lambda})}{p(\bm{\theta})}-\log p(\mathcal{D}|\bm{\theta})\right]\\
+            &=\arg\min_{\bm{\lambda}\in\Lambda}\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}[\mathcal{L}(\lambda)]
+        \end{align*}
+        Note that the gradient $\nabla_{\bm{\lambda}}$ can't be applied as it can't be taken inside the $\mathbb{E}$ because the expectation is taken w.r.t $\lambda$ too
+        \begin{center}
+            \resizebox{0.80\textwidth}{!}{$
+            \begin{aligned}
+                \nabla_{\bm{\lambda}}\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}[\mathcal{L}(\lambda)]&=\nabla_{\bm{\lambda}}\int q(\bm{\theta}|\bm{\lambda})\mathcal{L}(\lambda)\ d\bm{\theta}\\
+                &=\int\mathcal{L}(\lambda)\nabla_{\bm{\lambda}}q(\bm{\theta}|\bm{\lambda})\ d\bm{\theta}+\int q(\bm{\theta}|\bm{\lambda})\nabla_{\bm{\lambda}}\mathcal{L}(\lambda)\ d\bm{\theta}\\
+                &=\int\mathcal{L}(\lambda)\underbrace{\nabla_{\bm{\lambda}}q(\bm{\theta}|\bm{\lambda})}_{\text{Intractable}}\ d\bm{\theta}+\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}[\nabla_{\bm{\lambda}}\mathcal{L}(\lambda)]
+            \end{aligned}$}    
+        \end{center}
+        % TODO: look at https://gregorygundersen.com/blog/2018/04/29/reparameterization/
+        Here, the first term is not guaranteed to be an expectation and thus can't be approximated using Monte Carlo in case an analytic solution doesn't exist. Use the reparameterization trick to find the gradient w.r.t. $\lambda$:
+        \begin{itemize}
+            \item $\bm{\lambda}$ is obtained from a deterministic funtion $t,\bm{\theta}=t(\epsilon,\lambda)$
+            \item If $q(\epsilon)d\epsilon=q(\bm{\theta}|\lambda)d\bm{\theta}$ then
+            \begin{align*}
+                 &\nabla_{\bm{\lambda}}\mathbb{E}_{q(\bm{\theta}|\bm{\lambda})}[\mathcal{L}(\lambda)]\quad\left(=\nabla_{\bm{\lambda}}\int\mathcal{L}(\lambda)q(\bm{\theta}|\bm{\lambda})\ d\bm{\theta}\right)\\
+                 &=\nabla_{\bm{\lambda}}\mathbb{E}_{q(\epsilon)}[\mathcal{L}(\lambda)]\quad\left(=\nabla_{\bm{\lambda}}\int\mathcal{L}(\lambda)q(\epsilon)\ d\epsilon\right)
+            \end{align*}
+            Now the expectation is not taken w.r.t. $\lambda$ so we can pull the gradient $\nabla_{\bm{\lambda}}$ inside:
+            \begin{align*}
+                \nabla_{\bm{\lambda}}\mathbb{E}_{q(\epsilon)}[\mathcal{L}(\lambda)]=\mathbb{E}_{q(\epsilon)}[\nabla_{\bm{\lambda}}\mathcal{L}(\lambda)]
+            \end{align*}
+            Now we can sample $\epsilon$ to approximate the cost via Monte Carlo sampling
+        \end{itemize}
+        \item Example: multivariate Gaussian family $q(\bm{\lambda})=\mathcal{N}(\bm{\theta};\bm{\mu},\bm{\Sigma})$
+        \begin{itemize}
+            \item $q=\arg\min_{q\in\mathcal{Q}}\mathrm{KL}(p\|q)$ matches the 1st and 2nd moment of $p$ % TODO: check if q and p are the right way around!
+            \item $\tilde{q}=\arg\min_{q\in\mathcal{Q}}\mathrm{KL}(q\|p(\cdot\mid \bm{x}_{1:n},y_{1:n}))$ is not the same as the Laplace approximation $q'$ of $p(\cdot\mid \bm{x}_{1:n},y_{1:n})$ as $\tilde{q}$ satisfies the conditions of the Laplace approximation \textit{on average} rather than at the mode % TODO: check if q and p are the right way around!
+            \begin{align*}
+                \bm{0}&=\mathbb{E}_{\bm{\theta}\sim\tilde{q}}[\bm{\nabla}_{\bm{\theta}}\log p(\bm{\theta}\mid \bm{x}_{1:n},y_{1:n})]\\
+                -\bm{\Sigma}^{-1}&=\mathbb{E}_{\bm{\theta}\sim\tilde{q}}[\bm{H}_{\bm{\theta}}\log p(\bm{\theta}\mid \bm{x}_{1:n},y_{1:n})]
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STRONG LAW OF LARGE NUMBERS (SLLN)}}
+    \begin{itemize}
+        \item Suppose $\{x^{(i)}\}$ is an i.i.d. random sample drawn from $p(x)$, then by the SLLN:
+        \begin{align*}
+            \frac{1}{N}\sum_{i=1}^Nf\left(x^{(i)}\right)\overset{a.s.}{\to}\int f(x)p(x)\ dx=\mathbb{E}_{x\sim p(x)}[f(x)]
+        \end{align*}
+        \item Rate of convergence $\propto\sqrt{N}$, however the proportionality constant increases exponentially with the dimension of the integral
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{MONTE CARLO SAMPLING}}
+    \begin{itemize}
+        \item Often used to sample for approximate sampling from a probability distribution $p(x)$ when direct sampling from it is not possible
+        \item Based on SLLN
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{BAYESIAN POISSON REGRESSION}}
+    \mathbox{
+        \mathrm{Poisson}(k;\lambda)=\frac{\lambda^k}{k!}e^{-\lambda},\ \lambda\in(0,\infty),k\in\mathbb{N}_0
+    }
+    \begin{itemize}
+        \item Model
+        \begin{align*}
+            p(y\mid \bm{x},\bm{w})=\mathrm{Poisson}(y;e^{\bm{w}^\top\bm{x}})=\frac{e^{y\bm{w}^\top\bm{x}}}{y!}e^{-e^{\bm{w}^\top\bm{x}}}
+        \end{align*}
+        where $y$ is a count per time or space
+        \item Prior
+        \begin{align*}
+            p(\bm{w})=\mathcal{N}(\bm{w};\bm{0},\sigma_p^2\mathbb{I})
+        \end{align*}
+        \item Likelihood
+        \begin{center}
+            \resizebox{0.90\textwidth}{!}{$
+            \begin{aligned}
+                p(y_{1:n}\mid \bm{x}_{1:n},\bm{w})=\prod_{i=1}^np(y_i\mid \bm{x}_i,\bm{w})=\frac{1}{\prod_iy_i!}\exp\left(\Sigma_iy_i\bm{w}^\top\bm{x}_i-e^{\bm{w}^\top\bm{x}_i}\right)
+            \end{aligned}$}
+        \end{center}
+        \item Posterior
+        \begin{align*}
+            p(\bm{w}\mid \bm{x}_{1:n},y_{1:n})&=\frac{1}{Z}p(y_{1:n}\mid \bm{x}_{1:n},\bm{w})\underbrace{p(\bm{w}\mid \bm{x}_{1:n})}_{p(\bm{w})}\\
+            &=\frac{1}{Z'}\exp\left(\Sigma_iy_i\bm{w}^\top\bm{x}_i-e^{\bm{w}^\top\bm{x}_i}-\frac{\|\bm{w}\|_2^2}{2\sigma_p^2}\right)
+        \end{align*}
+        \item Predictive posterior (has no closed form)
+        \begin{align*}
+            p(y^*\mid \bm{x}^*,\bm{x}_{1:n},y_{1:n})=\int p(y^*\mid \bm{x}^*,\bm{w})p(\bm{w}\mid \bm{x}_{1:n},y_{1:n})\ d\bm{w}
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{VARIATIONAL INFERENCE FOR POISSON REGRESSION}}
+    \begin{itemize}
+        \item Variational family
+        \begin{align*}
+            \mathcal{Q}\doteq\{\mathcal{N}(\bm{\mu},\sigma^2\bm{I})\mid \bm{\mu}\in\mathbb{R}^d,\sigma^2\in[0,\infty)\}
+        \end{align*}
+        \item Variational inference
+        \begin{align*}
+            &\mathrm{KL}(q\|p(\cdot\mid \bm{x}_{1:n},y_{1:n}))\\
+            &=\int q(\bm{w})\log\frac{q(\bm{w})}{p(\bm{w}\mid \bm{x}_{1:n},y_{1:n})}\ d\bm{w}\\
+            &=-H[q]-\int q(\bm{w})\log p(\bm{w}\mid \bm{x}_{1:n},y_{1:n})\ d\bm{w}\\
+            &=-H[q]-\mathbb{E}_{\bm{w}\sim q}[\log p(\bm{w}\mid \bm{x}_{1:n},y_{1:n})]\\
+            &\text{Note: $q(\bm{w})=q_{\bm{\mu},\sigma^2}(\bm{w})$}\\
+            &\text{However we can't take gradients w.r.t. $\bm{\mu},\sigma$,}\\
+            &\text{therefore use reparameterization trick}\\
+            &=-H[q]-\mathbb{E}_{\bm{\epsilon}\sim \mathcal{N}(\bm{0},\mathbb{I})}[\log p(\bm{\mu+\sigma\bm{\epsilon}}\mid \bm{x}_{1:n},y_{1:n})]\\
+            &=-H[q]-\frac{1}{m}\int_{j=1}^m\log p(\bm{\mu}+\sigma\bm{\epsilon}^{j}\mid \bm{x}_{1:n},y_{1:n})\\
+            &\text{Note: $\bm{\epsilon^{(j)}}\sim\mathcal{N}(\bm{0},\mathbb{I})$}\\
+            &\text{Use Monte Carlo approximation}\\
+            &\propto -\frac{d}{2}\log(2\pi e)-d\log\sigma-\dots\\
+            &\dots -\frac{1}{m}\sum_{j=1}^m\left[\sum_{i=1}^n y_i\bm{w}^\top\bm{x}_i-e^{\bm{w}^\top\bm{x}_i}-\frac{\|\bm{w}\|_2^2}{2\sigma_p^2}\right]_{\bm{w}=\bm{\mu}+\sigma\bm{\epsilon}^{j}}\\
+            &\text{(Can be minimized using SGD)}
+        \end{align*}
+    \end{itemize}
+\end{whitebox}

@@ -1,0 +1,98 @@
+\section{MODEL-FREE RL}
+
+\begin{yellowbox}{\textbf{NOMENCLATURE}}
+    \begin{tabularx}{\columnwidth}{ll}
+        $\alpha\in[0,1]$ & Learning rate\\
+        \addlinespace[2pt]
+        $V_\theta(x)$ & Parametric (NN) approximation of $V^\pi(x)$\\
+        $Q_\theta(x,a)$ & Parametric (NN) approximation of $Q^\pi(x,a)$\\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+        $$ & \\
+   
+    \end{tabularx}
+\end{yellowbox}
+
+\begin{whitebox}{\textbf{Q-LEARNING}}
+    \begin{itemize}
+        \item Algorithm (off policy)
+        \begin{algorithmic}
+            \small
+            \Require $\alpha,\gamma$
+            \State Initialize $Q^*(x,a):X\times A\to\mathbb{R}$
+            \For {each episode}
+            \State Observe initial state $x$
+            \For{each step $t=0,1,\dots$}
+            \State Take action $a$, observe reward $r$ and next state $x'$
+            \State $Q^*(x,a)\leftarrow(1-\alpha)Q^*(x,a)+\alpha(r+\gamma\max_{a'}Q^*(x,a'))$
+            \State $x\leftarrow x'$
+            \EndFor
+            \EndFor\\
+            \Return $Q^*$
+        \end{algorithmic}
+        \item $\alpha\uparrow\implies$ learn more "aggresively" (discarding more of previous estimate)
+        \item Convergence condition: learning rate $\alpha_t$ must satisfy
+       \begin{align*}
+            \sum_t\alpha_t=\infty,\quad\sum_t\alpha_t^2<\infty
+        \end{align*}
+        and all state-action pairs are chosen infinitely often, then Q-Learning converges to the optimal $Q^*$ with probability $1$
+        \item $\max_{a'}Q^*(x,a')$ is intractable for large $|A|$
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{TEMPORAL DIFFERENCE (TD) LEARNING}}
+    \begin{itemize}
+        \item Algorithm (on policy)
+        \begin{algorithmic}
+            \Require $\alpha_k,\gamma$
+            \State Initialize $\hat{V}^\pi$ (e.g. with $0\ \forall x$)
+            \For{every $(x_k,a_k,r_k,x_{k+1})$}
+            \State $\hat{V}^\pi(x_k)=(1-\alpha_k)\hat{V}^\pi(x_k)+\alpha_k(r_k+\gamma\hat{V}^\pi(x_{k+1})$
+            \EndFor
+        \end{algorithmic}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{STATE ACTION REWARD STATE ACTION (SARSA)}}
+    \begin{itemize}
+        \item Algorithm (on policy)
+        \begin{algorithmic}
+            \footnotesize
+            \Require $\alpha_k,\gamma$
+            \State Initialize $\hat{Q}^\pi$ (e.g. with $0\ \forall x$)
+            \For{every $(x_k,a_k,r_k,x_{k+1})$}
+            \State $\hat{Q}^\pi(x_k,a_k)=(1-\alpha_k)\hat{Q}^\pi(x_k,a_k)+\alpha_k\left(r_k+\gamma\hat{Q}^\pi(x_{k+1},a_{k+1})\right)$
+            \EndFor
+        \end{algorithmic}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{FUNCTION APPROXIMATION}}
+    \begin{itemize}
+        \item Idea: instead of storing $V$ and/or $Q$ for all $x$, use a NN that takes in $x$ (and $a$) and gives $V$ and/or $Q$
+        \item Approximate value- and Q function with a parametric function (NN) $V_\theta(x),Q_\theta(x,a)$
+        \item From dynamic programming:
+        \begin{align*}
+            Q^*(x,a)&=R(x,a)+\gamma\max_{a'\in A}\mathbb{E}_{x'\sim P(x'|x,a)}[Q^*(x',a')]
+        \end{align*}
+        After collecting data $(x_0,a_0,r_0,x_1,a_1,r_1,\dots$ with policy $\pi$ we would intuitively like to have
+        \begin{align*}
+            Q_\theta(x_k,a_k)\approx R_k+\gamma\max_{a'}Q_\theta(x_{k+1},a')
+        \end{align*}
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{TODO}}
+    \begin{itemize}
+        \item 
+    \end{itemize}
+\end{whitebox}
+
+\begin{whitebox}{\textbf{TEMP}}
+    \begin{itemize}
+        \item 
+    \end{itemize}
+\end{whitebox}
